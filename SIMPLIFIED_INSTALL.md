@@ -23,7 +23,7 @@ sudo bash -c "$(curl -sL https://github.com/Kavis1/enhanced-marzban/raw/main/ins
 
 ### **Немедленная установка (обход кэша GitHub):**
 ```bash
-sudo bash -c "$(curl -sL https://github.com/Kavis1/enhanced-marzban/raw/d8418212/install.sh)" @ install
+sudo bash -c "$(curl -sL https://github.com/Kavis1/enhanced-marzban/raw/827ba616/install.sh)" @ install
 ```
 
 ## 🔧 Что изменилось
@@ -105,12 +105,22 @@ sudo bash -c "$(curl -sL https://github.com/Kavis1/enhanced-marzban/raw/d8418212
 - 📊 Добавлены Enhanced статистики безопасности в dashboard
 - ⚡ Заголовок изменен на 'Enhanced Marzban' с новым дизайном
 - 🛡️ Отображение заблокированных угроз, Fail2ban статистики, производительности
+- 🔧 Полноценные Enhanced Settings с управлением всеми функциями
+- 👤 Enhanced User Controls для индивидуальных настроек пользователей
+- 📈 Enhanced Monitoring Dashboard для мониторинга сервисов в реальном времени
+- 🔐 Two-Factor Authentication (2FA) - интерфейс настройки
+- 🚫 Fail2ban Integration - управление мониторингом трафика
+- ⏱️ Connection Limiting - настройка лимитов подключений
+- 🌐 DNS Override - управление DNS правилами
+- 🚫 Ad-blocking - блокировка рекламы и трекеров
+- 📊 Real-time Performance Monitoring - мониторинг производительности
+- 🛡️ Automated Security Features - автоматизированные функции безопасности
 
 ## 🧪 Проверка работы
 
 Проверить работу скрипта без установки:
 ```bash
-curl -sL https://github.com/Kavis1/enhanced-marzban/raw/d8418212/install.sh | bash -s -- --help
+curl -sL https://github.com/Kavis1/enhanced-marzban/raw/827ba616/install.sh | bash -s -- --help
 ```
 
 ## 📋 Процесс установки
