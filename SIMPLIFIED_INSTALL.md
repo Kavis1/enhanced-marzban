@@ -23,7 +23,7 @@ sudo bash -c "$(curl -sL https://github.com/Kavis1/enhanced-marzban/raw/main/ins
 
 ### **Немедленная установка (обход кэша GitHub):**
 ```bash
-sudo bash -c "$(curl -sL https://github.com/Kavis1/enhanced-marzban/raw/a97794bb/install.sh)" @ install
+sudo bash -c "$(curl -sL https://github.com/Kavis1/enhanced-marzban/raw/6570a264/install.sh)" @ install
 ```
 
 ## 🔧 Что изменилось
@@ -53,12 +53,16 @@ sudo bash -c "$(curl -sL https://github.com/Kavis1/enhanced-marzban/raw/a97794bb
 - 🛠️ Установлены все необходимые системные библиотеки
 - 📦 Обновлены зависимости для работы с базой данных
 - ✅ Исправлена ошибка "ModuleNotFoundError: No module named 'psycopg2'"
+- 🔐 Исправлены проблемы аутентификации PostgreSQL
+- 🗃️ Настроена правильная конфигурация pg_hba.conf
+- 🔑 Добавлено тестирование подключения к базе данных
+- 🔄 Реализованы резервные методы аутентификации
 
 ## 🧪 Проверка работы
 
 Проверить работу скрипта без установки:
 ```bash
-curl -sL https://github.com/Kavis1/enhanced-marzban/raw/a97794bb/install.sh | bash -s -- --help
+curl -sL https://github.com/Kavis1/enhanced-marzban/raw/6570a264/install.sh | bash -s -- --help
 ```
 
 ## 📋 Процесс установки
