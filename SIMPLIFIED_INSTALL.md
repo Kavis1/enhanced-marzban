@@ -23,7 +23,7 @@ sudo bash -c "$(curl -sL https://github.com/Kavis1/enhanced-marzban/raw/main/ins
 
 ### **Немедленная установка (обход кэша GitHub):**
 ```bash
-sudo bash -c "$(curl -sL https://github.com/Kavis1/enhanced-marzban/raw/d3436295/install.sh)" @ install
+sudo bash -c "$(curl -sL https://github.com/Kavis1/enhanced-marzban/raw/8b09013f/install.sh)" @ install
 ```
 
 ## 🔧 Что изменилось
@@ -93,12 +93,16 @@ sudo bash -c "$(curl -sL https://github.com/Kavis1/enhanced-marzban/raw/d3436295
 - 🗃️ Устранены ошибки '__enter__' в DNSManager, AdBlockManager, ConnectionTracker
 - 🌐 Исправлен внешний доступ к панели через Nginx reverse proxy
 - ✅ Enhanced Marzban теперь доступен с внешних IP адресов
+- 🔧 Исправлены URL доступа в сообщении завершения установки
+- 📱 Правильные адреса: http://server-ip/dashboard/ через Nginx
+- ✅ Убран прямой доступ к порту 8000 из инструкций
+- 🌐 Корректная настройка reverse proxy для внешнего доступа
 
 ## 🧪 Проверка работы
 
 Проверить работу скрипта без установки:
 ```bash
-curl -sL https://github.com/Kavis1/enhanced-marzban/raw/d3436295/install.sh | bash -s -- --help
+curl -sL https://github.com/Kavis1/enhanced-marzban/raw/8b09013f/install.sh | bash -s -- --help
 ```
 
 ## 📋 Процесс установки
