@@ -23,7 +23,7 @@ sudo bash -c "$(curl -sL https://github.com/Kavis1/enhanced-marzban/raw/main/ins
 
 ### **Немедленная установка (обход кэша GitHub):**
 ```bash
-sudo bash -c "$(curl -sL https://github.com/Kavis1/enhanced-marzban/raw/62feba43/install.sh)" @ install
+sudo bash -c "$(curl -sL https://github.com/Kavis1/enhanced-marzban/raw/732fca1f/install.sh)" @ install
 ```
 
 ## 🔧 Что изменилось
@@ -69,12 +69,16 @@ sudo bash -c "$(curl -sL https://github.com/Kavis1/enhanced-marzban/raw/62feba43
 - ✅ Устранена ошибка 'collation NOCASE does not exist'
 - 🔧 Удалены SQLite-специфичные коллации из моделей
 - 📊 Полная совместимость с PostgreSQL, MySQL и SQLite
+- 👤 Исправлено создание администратора с правильным хешированием пароля
+- 🔐 Использование passlib.context.CryptContext для bcrypt хеширования
+- ✅ Устранена ошибка импорта 'cannot import name hash_password'
+- 🎯 Полная совместимость с системой аутентификации Enhanced Marzban
 
 ## 🧪 Проверка работы
 
 Проверить работу скрипта без установки:
 ```bash
-curl -sL https://github.com/Kavis1/enhanced-marzban/raw/62feba43/install.sh | bash -s -- --help
+curl -sL https://github.com/Kavis1/enhanced-marzban/raw/732fca1f/install.sh | bash -s -- --help
 ```
 
 ## 📋 Процесс установки
