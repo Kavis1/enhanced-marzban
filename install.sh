@@ -296,10 +296,12 @@ install_dependencies() {
     print_progress 4 10 "Installing PostgreSQL..."
     case "$DETECTED_OS" in
         ubuntu|debian)
-            apt-get install -y -qq postgresql postgresql-contrib postgresql-client
+            apt-get install -y -qq postgresql postgresql-contrib postgresql-client \
+                libpq-dev python3-dev build-essential
             ;;
         centos|rhel)
-            yum install -y -q postgresql-server postgresql-contrib
+            yum install -y -q postgresql-server postgresql-contrib postgresql-devel \
+                python3-devel gcc gcc-c++ make
             postgresql-setup initdb
             ;;
     esac
@@ -418,9 +420,9 @@ install_python_dependencies() {
     print_progress 3 5 "Installing Enhanced Marzban dependencies..."
     python3 -m pip install -r requirements.txt
 
-    # Install additional security packages
-    print_progress 4 5 "Installing security packages..."
-    python3 -m pip install cryptography bcrypt
+    # Install additional security and database packages
+    print_progress 4 5 "Installing security and database packages..."
+    python3 -m pip install cryptography bcrypt psycopg2-binary
 
     print_progress 5 5 "Python dependencies installation completed"
     print_success "All Python dependencies installed successfully"

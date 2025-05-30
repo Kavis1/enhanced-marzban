@@ -48,3 +48,4 @@ qrcode[pil]==7.4.2
 dnspython==2.4.2
 scapy==2.5.0
 ipaddress==1.0.23
+psycopg2-binary==2.9.9
