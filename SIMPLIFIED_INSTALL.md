@@ -23,7 +23,7 @@ sudo bash -c "$(curl -sL https://github.com/Kavis1/enhanced-marzban/raw/main/ins
 
 ### **Немедленная установка (обход кэша GitHub):**
 ```bash
-sudo bash -c "$(curl -sL https://github.com/Kavis1/enhanced-marzban/raw/6570a264/install.sh)" @ install
+sudo bash -c "$(curl -sL https://github.com/Kavis1/enhanced-marzban/raw/d930a5be/install.sh)" @ install
 ```
 
 ## 🔧 Что изменилось
@@ -57,12 +57,16 @@ sudo bash -c "$(curl -sL https://github.com/Kavis1/enhanced-marzban/raw/6570a264
 - 🗃️ Настроена правильная конфигурация pg_hba.conf
 - 🔑 Добавлено тестирование подключения к базе данных
 - 🔄 Реализованы резервные методы аутентификации
+- 🚫 Устранены бесконечные запросы пароля PostgreSQL
+- ⚡ Полностью автоматизированная установка без интерактивных запросов
+- 🤖 Неинтерактивные команды PostgreSQL (createdb/createuser)
+- 🔒 Автоматическая настройка пользователей и паролей
 
 ## 🧪 Проверка работы
 
 Проверить работу скрипта без установки:
 ```bash
-curl -sL https://github.com/Kavis1/enhanced-marzban/raw/6570a264/install.sh | bash -s -- --help
+curl -sL https://github.com/Kavis1/enhanced-marzban/raw/d930a5be/install.sh | bash -s -- --help
 ```
 
 ## 📋 Процесс установки
