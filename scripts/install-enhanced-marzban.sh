@@ -104,7 +104,9 @@ print_progress() {
 }
 
 log_action() {
-    echo "$(date '+%Y-%m-%d %H:%M:%S') - $1" >> "$LOG_DIR/install.log"
+    # Ensure log directory exists before writing
+    mkdir -p "$LOG_DIR" 2>/dev/null || true
+    echo "$(date '+%Y-%m-%d %H:%M:%S') - $1" >> "$LOG_DIR/install.log" 2>/dev/null || true
 }
 
 check_root() {
@@ -1429,6 +1431,9 @@ trap 'handle_error $LINENO' ERR
 
 # Main installation process
 main() {
+    # Check root privileges first
+    check_root
+
     # Parse command line arguments
     parse_arguments "$@"
 
@@ -1458,6 +1463,9 @@ main() {
 
     # Start installation
     print_status "Starting Enhanced Marzban installation..."
+
+    # Create initial log directory
+    mkdir -p "$LOG_DIR" 2>/dev/null || true
     log_action "Installation started"
 
     # Detect operating system
