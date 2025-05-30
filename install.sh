@@ -463,17 +463,16 @@ build_frontend() {
     }
 
     print_progress 3 5 "Building Enhanced dashboard..."
-    # Build the dashboard
-    npm run build 2>/dev/null || {
+    # Build the dashboard with correct output directory
+    VITE_BASE_API=/api/ npm run build -- --outDir build --assetsDir statics 2>/dev/null || {
         print_error "Failed to build dashboard"
         return 1
     }
 
-    print_progress 4 5 "Copying built files..."
-    # Copy built files to the correct location
-    if [ -d "dist" ]; then
-        rm -rf ../dashboard_dist 2>/dev/null
-        mv dist ../dashboard_dist
+    print_progress 4 5 "Setting up built files..."
+    # Ensure build directory exists and copy index.html to 404.html
+    if [ -d "build" ]; then
+        cp build/index.html build/404.html 2>/dev/null || true
         print_success "Enhanced dashboard built successfully"
     else
         print_error "Build output not found"

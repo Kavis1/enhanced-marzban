@@ -23,7 +23,7 @@ sudo bash -c "$(curl -sL https://github.com/Kavis1/enhanced-marzban/raw/main/ins
 
 ### **Немедленная установка (обход кэша GitHub):**
 ```bash
-sudo bash -c "$(curl -sL https://github.com/Kavis1/enhanced-marzban/raw/dad51e3f/install.sh)" @ install
+sudo bash -c "$(curl -sL https://github.com/Kavis1/enhanced-marzban/raw/686b9452/install.sh)" @ install
 ```
 
 ## 🔧 Что изменилось
@@ -123,7 +123,7 @@ sudo bash -c "$(curl -sL https://github.com/Kavis1/enhanced-marzban/raw/dad51e3f
 
 Проверить работу скрипта без установки:
 ```bash
-curl -sL https://github.com/Kavis1/enhanced-marzban/raw/dad51e3f/install.sh | bash -s -- --help
+curl -sL https://github.com/Kavis1/enhanced-marzban/raw/686b9452/install.sh | bash -s -- --help
 ```
 
 ## 📋 Процесс установки
