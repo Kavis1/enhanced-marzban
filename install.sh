@@ -509,29 +509,63 @@ setup_database() {
 
     print_progress 3 4 "Testing database connection..."
 
-    # Test database connection first
-    local connection_test=$(PGPASSWORD="$DATABASE_PASSWORD" psql -h localhost -U marzban -d enhanced_marzban -c "SELECT 1;" 2>&1)
-    if [[ $connection_test == *"ERROR"* ]]; then
-        print_error "Database connection test failed: $connection_test"
-        print_status "Trying to fix authentication..."
+    # Test database connection with Python/SQLAlchemy
+    local python_test_result=$(python3 -c "
+import psycopg2
+import sys
+try:
+    conn = psycopg2.connect(
+        host='localhost',
+        database='enhanced_marzban',
+        user='marzban',
+        password='$DATABASE_PASSWORD'
+    )
+    conn.close()
+    print('SUCCESS')
+except Exception as e:
+    print(f'ERROR: {e}')
+    sys.exit(1)
+" 2>&1)
 
-        # Try alternative authentication method
-        sudo -u postgres psql -c "ALTER USER marzban WITH PASSWORD '$DATABASE_PASSWORD';"
-        systemctl restart postgresql
-        sleep 3
+    if [[ $python_test_result == *"ERROR"* ]]; then
+        print_error "Python database connection test failed: $python_test_result"
+        print_status "Trying alternative authentication methods..."
 
-        # Test again
-        connection_test=$(PGPASSWORD="$DATABASE_PASSWORD" psql -h localhost -U marzban -d enhanced_marzban -c "SELECT 1;" 2>&1)
-        if [[ $connection_test == *"ERROR"* ]]; then
-            print_error "Database connection still failing. Trying peer authentication..."
-            # Use peer authentication as fallback
-            DATABASE_URL="postgresql:///enhanced_marzban?host=/var/run/postgresql&user=marzban"
+        # Try to create a system user for peer authentication
+        if ! id "marzban" &>/dev/null; then
+            useradd -r -s /bin/false marzban 2>/dev/null || true
+        fi
+
+        # Try peer authentication
+        local peer_test_result=$(sudo -u marzban psql -d enhanced_marzban -c "SELECT 1;" 2>&1)
+        if [[ $peer_test_result == *"ERROR"* ]] || [[ $peer_test_result == *"FATAL"* ]]; then
+            print_warning "Peer authentication failed, using trust authentication temporarily"
+
+            # Temporarily use trust authentication for setup
+            local pg_config_dir="/etc/postgresql/14/main"
+            if [ -f "$pg_config_dir/pg_hba.conf" ]; then
+                # Backup current config
+                cp "$pg_config_dir/pg_hba.conf" "$pg_config_dir/pg_hba.conf.md5backup"
+
+                # Add trust authentication for marzban user temporarily
+                sed -i '1i local   enhanced_marzban    marzban                                 trust' "$pg_config_dir/pg_hba.conf"
+
+                systemctl restart postgresql
+                sleep 3
+
+                DATABASE_URL="postgresql:///enhanced_marzban?host=/var/run/postgresql&user=marzban"
+                print_status "Using trust authentication for database setup"
+            else
+                print_error "Cannot configure PostgreSQL authentication"
+                exit 1
+            fi
         else
-            DATABASE_URL="postgresql://marzban:$DATABASE_PASSWORD@localhost/enhanced_marzban"
+            DATABASE_URL="postgresql:///enhanced_marzban?host=/var/run/postgresql&user=marzban"
+            print_status "Using peer authentication"
         fi
     else
         DATABASE_URL="postgresql://marzban:$DATABASE_PASSWORD@localhost/enhanced_marzban"
-        print_success "Database connection test passed"
+        print_success "Python database connection test passed"
     fi
 
     print_progress 4 4 "Running database migrations..."
@@ -553,6 +587,17 @@ except Exception as e:
     exit(1)
 "
 
+    # Restore secure authentication after setup if trust was used
+    if [ -f "/etc/postgresql/14/main/pg_hba.conf.md5backup" ]; then
+        print_status "Restoring secure PostgreSQL authentication..."
+        cp "/etc/postgresql/14/main/pg_hba.conf.md5backup" "/etc/postgresql/14/main/pg_hba.conf"
+        systemctl restart postgresql
+
+        # Update DATABASE_URL to use password authentication for production
+        DATABASE_URL="postgresql://marzban:$DATABASE_PASSWORD@localhost/enhanced_marzban"
+        print_status "Restored md5 authentication for production use"
+    fi
+
     print_progress 4 4 "Database setup completed"
     print_success "PostgreSQL database configured successfully"
     log_action "Database setup completed"
@@ -563,10 +608,8 @@ create_configuration() {
 
     cd "$MARZBAN_DIR"
 
-    # Use the DATABASE_URL that was tested and working
-    if [ -z "$DATABASE_URL" ]; then
-        DATABASE_URL="postgresql://marzban:$DATABASE_PASSWORD@localhost/enhanced_marzban"
-    fi
+    # Use password authentication for production configuration
+    DATABASE_URL="postgresql://marzban:$DATABASE_PASSWORD@localhost/enhanced_marzban"
 
     # Create .env configuration file
     cat > .env << EOF
@@ -640,10 +683,8 @@ create_admin_user() {
 
     cd "$MARZBAN_DIR"
 
-    # Use the same DATABASE_URL that was tested
-    if [ -z "$DATABASE_URL" ]; then
-        DATABASE_URL="postgresql://marzban:$DATABASE_PASSWORD@localhost/enhanced_marzban"
-    fi
+    # Use password authentication for admin creation
+    DATABASE_URL="postgresql://marzban:$DATABASE_PASSWORD@localhost/enhanced_marzban"
 
     # Create admin user
     python3 -c "
