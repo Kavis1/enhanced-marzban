@@ -363,6 +363,7 @@ class XRayConfig(dict):
 
         with GetDB() as db:
             # Use string_agg for PostgreSQL compatibility instead of group_concat
+            # Remove JSON field from GROUP BY to avoid PostgreSQL equality operator error
             query = db.query(
                 db_models.User.id,
                 db_models.User.username,
@@ -380,7 +381,7 @@ class XRayConfig(dict):
                 db_models.Proxy.type,
                 db_models.User.id,
                 db_models.User.username,
-                db_models.Proxy.settings,
+                db_models.Proxy.id  # Use proxy.id instead of settings for grouping
             )
             result = query.all()
 
