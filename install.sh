@@ -798,6 +798,9 @@ EOF
 setup_nginx() {
     print_step 13 14 "Setting up Nginx configuration"
 
+    # Create necessary Nginx directories
+    mkdir -p "$NGINX_DIR/sites-available" "$NGINX_DIR/sites-enabled"
+
     # Determine server name
     local server_name="_"
     if [ -n "$DOMAIN" ]; then
