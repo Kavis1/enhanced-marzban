@@ -74,7 +74,7 @@ const EnhancedSettingsCard: FC<{
   status?: "success" | "warning" | "error";
 }> = ({ title, description, icon, enabled, onToggle, children, status = "success" }) => {
   const { colorMode } = useColorMode();
-  
+
   const statusColors = {
     success: "green.400",
     warning: "yellow.400",
@@ -84,11 +84,10 @@ const EnhancedSettingsCard: FC<{
   return (
     <Card
       bg="white"
-      _dark={{ bg: "gray.750" }}
+      _dark={{ bg: "gray.750", borderColor: "gray.600" }}
       borderRadius="12px"
       border="1px solid"
       borderColor="light-border"
-      _dark={{ borderColor: "gray.600" }}
     >
       <CardHeader pb="2">
         <HStack justify="space-between">
@@ -180,7 +179,7 @@ export const EnhancedSettings: FC = () => {
 
   const handleToggleFeature = (feature: keyof EnhancedConfig, enabled: boolean) => {
     if (!config) return;
-    
+
     const updatedConfig = {
       ...config,
       [feature]: {
@@ -188,14 +187,14 @@ export const EnhancedSettings: FC = () => {
         enabled,
       },
     };
-    
+
     setConfig(updatedConfig);
     updateConfigMutation.mutate({ [feature]: updatedConfig[feature] });
   };
 
   const handleUpdateFeatureConfig = (feature: keyof EnhancedConfig, updates: any) => {
     if (!config) return;
-    
+
     const updatedConfig = {
       ...config,
       [feature]: {
@@ -203,7 +202,7 @@ export const EnhancedSettings: FC = () => {
         ...updates,
       },
     };
-    
+
     setConfig(updatedConfig);
     updateConfigMutation.mutate({ [feature]: updatedConfig[feature] });
   };

@@ -72,13 +72,11 @@ const EnhancedStatisticCard: FC<EnhancedStatisticCardProps> = ({
       bg="white"
       _dark={{
         bg: "gray.750",
+        borderColor: "gray.600",
       }}
       borderRadius="12px"
       border="1px solid"
       borderColor="light-border"
-      _dark={{
-        borderColor: "gray.600",
-      }}
       position="relative"
       overflow="hidden"
       minH="120px"
@@ -193,7 +191,7 @@ export const EnhancedStatistics: FC<BoxProps> = (props) => {
           content={
             <HStack alignItems="center">
               <Text>{stats.performance_score}%</Text>
-              <Badge 
+              <Badge
                 colorScheme={stats.performance_score > 90 ? "green" : stats.performance_score > 70 ? "yellow" : "red"}
                 size="sm"
               >

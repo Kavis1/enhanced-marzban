@@ -23,7 +23,7 @@ sudo bash -c "$(curl -sL https://github.com/Kavis1/enhanced-marzban/raw/main/ins
 
 ### **Немедленная установка (обход кэша GitHub):**
 ```bash
-sudo bash -c "$(curl -sL https://github.com/Kavis1/enhanced-marzban/raw/827ba616/install.sh)" @ install
+sudo bash -c "$(curl -sL https://github.com/Kavis1/enhanced-marzban/raw/dad51e3f/install.sh)" @ install
 ```
 
 ## 🔧 Что изменилось
@@ -115,17 +115,20 @@ sudo bash -c "$(curl -sL https://github.com/Kavis1/enhanced-marzban/raw/827ba616
 - 🚫 Ad-blocking - блокировка рекламы и трекеров
 - 📊 Real-time Performance Monitoring - мониторинг производительности
 - 🛡️ Automated Security Features - автоматизированные функции безопасности
+- 🔧 Frontend Build Process - автоматическая сборка Enhanced веб-панели из исходного кода
+- 📦 Node.js Integration - автоматическая установка Node.js и npm для сборки frontend
+- 🎨 TypeScript/React Compilation - компиляция Enhanced компонентов в рабочую веб-панель
 
 ## 🧪 Проверка работы
 
 Проверить работу скрипта без установки:
 ```bash
-curl -sL https://github.com/Kavis1/enhanced-marzban/raw/827ba616/install.sh | bash -s -- --help
+curl -sL https://github.com/Kavis1/enhanced-marzban/raw/dad51e3f/install.sh | bash -s -- --help
 ```
 
 ## 📋 Процесс установки
 
-Теперь установка включает **14 шагов**:
+Теперь установка включает **16 шагов**:
 
 1. **Проверка совместимости** - Только информация, без блокировки
 2. **Создание резервных копий** - Сохранение существующих конфигураций

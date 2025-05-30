@@ -11,6 +11,9 @@ export function formatBytes(bytes: number, decimals = 2, asArray = false) {
   else return [parseFloat((bytes / Math.pow(k, i)).toFixed(dm)), sizes[i]];
 }
 
-export const numberWithCommas = (x: number) => {
-  if (x !== null) return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+export const numberWithCommas = (x: number | null | undefined): string => {
+  if (x !== null && x !== undefined) {
+    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  }
+  return "0";
 };

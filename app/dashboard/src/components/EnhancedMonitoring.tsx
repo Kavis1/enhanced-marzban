@@ -57,7 +57,7 @@ const ServiceStatusCard: FC<{
   metrics?: any;
 }> = ({ service, metrics }) => {
   const { colorMode } = useColorMode();
-  
+
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
       case "running":
@@ -94,11 +94,10 @@ const ServiceStatusCard: FC<{
   return (
     <Card
       bg="white"
-      _dark={{ bg: "gray.750" }}
+      _dark={{ bg: "gray.750", borderColor: "gray.600" }}
       borderRadius="12px"
       border="1px solid"
       borderColor="light-border"
-      _dark={{ borderColor: "gray.600" }}
     >
       <CardHeader pb="2">
         <HStack justify="space-between">
@@ -139,7 +138,7 @@ const ServiceStatusCard: FC<{
           </VStack>
         </HStack>
       </CardHeader>
-      
+
       {metrics && (
         <CardBody pt="0">
           <VStack spacing="2" align="stretch">
@@ -185,7 +184,7 @@ const ServiceStatusCard: FC<{
           </VStack>
         </CardBody>
       )}
-      
+
       {service.error && (
         <CardBody pt="0">
           <Text fontSize="sm" color="red.500">
@@ -264,7 +263,7 @@ export const EnhancedMonitoring: FC = () => {
 
         {/* Overall Status */}
         {statusData && (
-          <Card mb="6" bg="blue.50" _dark={{ bg: "blue.900" }} borderColor="blue.200" _dark={{ borderColor: "blue.700" }}>
+          <Card mb="6" bg="blue.50" _dark={{ bg: "blue.900", borderColor: "blue.700" }} borderColor="blue.200">
             <CardBody>
               <HStack justify="space-between">
                 <VStack align="start" spacing="1">
