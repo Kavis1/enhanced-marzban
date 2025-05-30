@@ -16,6 +16,7 @@ import { UsersTable } from "components/UsersTable";
 import { fetchInbounds, useDashboard } from "contexts/DashboardContext";
 import { FC, useEffect } from "react";
 import { Statistics } from "../components/Statistics";
+import { EnhancedStatistics } from "../components/EnhancedStatistics";
 
 export const Dashboard: FC = () => {
   useEffect(() => {
@@ -27,6 +28,7 @@ export const Dashboard: FC = () => {
       <Box w="full">
         <Header />
         <Statistics mt="4" />
+        <EnhancedStatistics mt="6" />
         <Filters />
         <UsersTable />
         <UserDialog />

@@ -121,7 +121,7 @@ export const Header: FC<HeaderProps> = ({ actions }) => {
       position="relative"
     >
       <Text as="h1" fontWeight="semibold" fontSize="2xl">
-        {t("users")}
+        Enhanced {t("users")}
       </Text>
       {showDonationNotif && (
         <NotificationCircle top="0" right="0" zIndex={9999} />

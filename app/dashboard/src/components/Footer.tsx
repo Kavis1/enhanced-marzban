@@ -15,12 +15,16 @@ export const Footer: FC<BoxProps> = (props) => {
         fontSize="xs"
       >
         <Link color="blue.400" href={REPO_URL}>
-          Marzban
+          Enhanced Marzban
         </Link>
         {version ? ` (v${version}), ` : ", "}
-        Made with ❤️ in{" "}
+        Enhanced with ⚡ by{" "}
+        <Link color="blue.400" href="https://github.com/Kavis1/enhanced-marzban">
+          Kavis1
+        </Link>
+        {" | Based on "}
         <Link color="blue.400" href={ORGANIZATION_URL}>
-          Gozargah
+          Gozargah Marzban
         </Link>
       </Text>
     </HStack>
