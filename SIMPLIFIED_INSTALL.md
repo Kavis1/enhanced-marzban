@@ -23,7 +23,7 @@ sudo bash -c "$(curl -sL https://github.com/Kavis1/enhanced-marzban/raw/main/ins
 
 ### **Немедленная установка (обход кэша GitHub):**
 ```bash
-sudo bash -c "$(curl -sL https://github.com/Kavis1/enhanced-marzban/raw/8b09013f/install.sh)" @ install
+sudo bash -c "$(curl -sL https://github.com/Kavis1/enhanced-marzban/raw/19438726/install.sh)" @ install
 ```
 
 ## 🔧 Что изменилось
@@ -97,12 +97,16 @@ sudo bash -c "$(curl -sL https://github.com/Kavis1/enhanced-marzban/raw/8b09013f
 - 📱 Правильные адреса: http://server-ip/dashboard/ через Nginx
 - ✅ Убран прямой доступ к порту 8000 из инструкций
 - 🌐 Корректная настройка reverse proxy для внешнего доступа
+- 🔐 Исправлена инициализация JWT secret key в базе данных
+- ✅ Устранена ошибка 'NoneType' object has no attribute 'secret_key'
+- 🌐 Упрощена конфигурация Nginx для немедленного доступа
+- 📱 Панель доступна сразу после установки без SSL сертификатов
 
 ## 🧪 Проверка работы
 
 Проверить работу скрипта без установки:
 ```bash
-curl -sL https://github.com/Kavis1/enhanced-marzban/raw/8b09013f/install.sh | bash -s -- --help
+curl -sL https://github.com/Kavis1/enhanced-marzban/raw/19438726/install.sh | bash -s -- --help
 ```
 
 ## 📋 Процесс установки
