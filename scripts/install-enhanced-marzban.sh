@@ -7,7 +7,14 @@
 # This script provides a complete, automated deployment solution for Enhanced Marzban
 # with all security features, monitoring, and management capabilities.
 
-set -euo pipefail
+set -eo pipefail
+
+# Handle curl execution case
+if [[ -z "${BASH_SOURCE[0]:-}" ]]; then
+    SCRIPT_NAME="install-enhanced-marzban.sh"
+else
+    SCRIPT_NAME="${BASH_SOURCE[0]}"
+fi
 
 # Colors for output
 RED='\033[0;31m'
@@ -141,25 +148,29 @@ check_system_requirements() {
     # Check OS compatibility
     case "$DETECTED_OS" in
         ubuntu)
-            if [[ $(echo "$DETECTED_VERSION >= 20.04" | bc -l) -eq 0 ]]; then
-                print_error "Ubuntu 20.04 or higher is required"
+            local major_version=$(echo "$DETECTED_VERSION" | cut -d. -f1)
+            local minor_version=$(echo "$DETECTED_VERSION" | cut -d. -f2)
+            if [[ $major_version -lt 20 ]] || [[ $major_version -eq 20 && $minor_version -lt 4 ]]; then
+                print_error "Ubuntu 20.04 or higher is required (detected: $DETECTED_VERSION)"
                 exit 1
             fi
             ;;
         debian)
-            if [[ $(echo "$DETECTED_VERSION >= 11" | bc -l) -eq 0 ]]; then
-                print_error "Debian 11 or higher is required"
+            local major_version=$(echo "$DETECTED_VERSION" | cut -d. -f1)
+            if [[ $major_version -lt 11 ]]; then
+                print_error "Debian 11 or higher is required (detected: $DETECTED_VERSION)"
                 exit 1
             fi
             ;;
         centos|rhel)
-            if [[ $(echo "$DETECTED_VERSION >= 8" | bc -l) -eq 0 ]]; then
-                print_error "CentOS/RHEL 8 or higher is required"
+            local major_version=$(echo "$DETECTED_VERSION" | cut -d. -f1)
+            if [[ $major_version -lt 8 ]]; then
+                print_error "CentOS/RHEL 8 or higher is required (detected: $DETECTED_VERSION)"
                 exit 1
             fi
             ;;
         *)
-            print_warning "Unsupported OS detected. Proceeding with Ubuntu/Debian packages..."
+            print_warning "Unsupported OS detected: $DETECTED_OS $DETECTED_VERSION. Proceeding with Ubuntu/Debian packages..."
             ;;
     esac
 
@@ -279,12 +290,12 @@ install_dependencies() {
             apt-get install -y -qq \
                 curl wget git unzip software-properties-common \
                 apt-transport-https ca-certificates gnupg lsb-release \
-                openssl bc jq htop nano vim
+                openssl jq htop nano vim
             ;;
         centos|rhel)
             yum install -y -q \
                 curl wget git unzip \
-                openssl bc jq htop nano vim
+                openssl jq htop nano vim
             ;;
     esac
 
@@ -1512,7 +1523,7 @@ main() {
 }
 
 # Check if script is being sourced or executed directly
-if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+if [[ "$SCRIPT_NAME" == "${0}" ]] || [[ "$SCRIPT_NAME" == "install-enhanced-marzban.sh" ]]; then
     # Script is being executed directly
     main "$@"
 else
