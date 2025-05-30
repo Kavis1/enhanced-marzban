@@ -1308,7 +1308,8 @@ show_completion_message() {
     echo
 
     # Determine access URL
-    local access_url="https://$(hostname -I | awk '{print $1}'):8000"
+    local server_ip=$(hostname -I | awk '{print $1}')
+    local access_url="http://$server_ip"
     if [ -n "$DOMAIN" ]; then
         access_url="https://$DOMAIN"
     fi
@@ -1317,6 +1318,7 @@ show_completion_message() {
     echo -e "${WHITE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
     echo -e "📱 Web Panel:      ${GREEN}$access_url/dashboard/${NC}"
     echo -e "🔧 API Docs:       ${GREEN}$access_url/docs${NC}"
+    echo -e "🌐 Server IP:      ${BLUE}$server_ip${NC}"
     echo -e "👤 Admin Username: ${YELLOW}$ADMIN_USERNAME${NC}"
     echo -e "🔑 Admin Password: ${YELLOW}$ADMIN_PASSWORD${NC}"
     echo -e "🔐 API Token:      ${YELLOW}$API_TOKEN${NC}"
@@ -1386,6 +1388,7 @@ Generated on: $(date)
 Access Information:
 - Web Panel: $access_url/dashboard/
 - API Documentation: $access_url/docs
+- Server IP: $server_ip
 - Admin Username: $ADMIN_USERNAME
 - Admin Password: $ADMIN_PASSWORD
 - API Token: $API_TOKEN
