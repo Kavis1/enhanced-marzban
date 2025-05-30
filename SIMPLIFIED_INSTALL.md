@@ -23,7 +23,7 @@ sudo bash -c "$(curl -sL https://github.com/Kavis1/enhanced-marzban/raw/main/ins
 
 ### **Немедленная установка (обход кэша GitHub):**
 ```bash
-sudo bash -c "$(curl -sL https://github.com/Kavis1/enhanced-marzban/raw/57f4ce62/install.sh)" @ install
+sudo bash -c "$(curl -sL https://github.com/Kavis1/enhanced-marzban/raw/62feba43/install.sh)" @ install
 ```
 
 ## 🔧 Что изменилось
@@ -65,12 +65,16 @@ sudo bash -c "$(curl -sL https://github.com/Kavis1/enhanced-marzban/raw/57f4ce62
 - 🔄 Автоматическое восстановление безопасной конфигурации
 - 📋 Резервное копирование оригинальных настроек PostgreSQL
 - 🎯 Полностью переписанная логика установки базы данных
+- 🗃️ Исправлена совместимость коллаций SQLite/PostgreSQL
+- ✅ Устранена ошибка 'collation NOCASE does not exist'
+- 🔧 Удалены SQLite-специфичные коллации из моделей
+- 📊 Полная совместимость с PostgreSQL, MySQL и SQLite
 
 ## 🧪 Проверка работы
 
 Проверить работу скрипта без установки:
 ```bash
-curl -sL https://github.com/Kavis1/enhanced-marzban/raw/57f4ce62/install.sh | bash -s -- --help
+curl -sL https://github.com/Kavis1/enhanced-marzban/raw/62feba43/install.sh | bash -s -- --help
 ```
 
 ## 📋 Процесс установки
