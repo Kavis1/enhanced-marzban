@@ -48,7 +48,7 @@ use_route_names_as_operation_ids(app)
 
 
 @app.on_event("startup")
-def on_startup():
+async def on_startup():
     paths = [f"{r.path}/" for r in app.routes]
     paths.append("/api/")
     if f"/{XRAY_SUBSCRIPTION_PATH}/" in paths:
@@ -57,10 +57,26 @@ def on_startup():
         )
     scheduler.start()
 
+    # Initialize enhanced services
+    try:
+        from app.services.service_manager import service_manager
+        await service_manager.initialize_services()
+        logger.info("Enhanced services initialized successfully")
+    except Exception as e:
+        logger.error(f"Failed to initialize enhanced services: {e}")
+
 
 @app.on_event("shutdown")
-def on_shutdown():
+async def on_shutdown():
     scheduler.shutdown()
+
+    # Cleanup enhanced services
+    try:
+        from app.services.service_manager import service_manager
+        await service_manager.cleanup_services()
+        logger.info("Enhanced services cleaned up successfully")
+    except Exception as e:
+        logger.error(f"Failed to cleanup enhanced services: {e}")
 
 
 @app.exception_handler(RequestValidationError)

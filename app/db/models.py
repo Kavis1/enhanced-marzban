@@ -47,6 +47,11 @@ class Admin(Base):
     users_usage = Column(BigInteger, nullable=False, default=0)
     usage_logs = relationship("AdminUsageLogs", back_populates="admin")
 
+    # Enhanced features
+    two_factor = relationship("AdminTwoFactor", back_populates="admin", uselist=False, cascade="all, delete-orphan")
+    login_attempts = relationship("AdminLoginAttempt", cascade="all, delete-orphan")
+    sessions = relationship("AdminSession", cascade="all, delete-orphan")
+
 
 class AdminUsageLogs(Base):
     __tablename__ = "admin_usage_logs"
@@ -95,12 +100,25 @@ class User(Base):
     edit_at = Column(DateTime, nullable=True, default=None)
     last_status_change = Column(DateTime, default=datetime.utcnow, nullable=True)
 
+    # Enhanced features
+    max_connections = Column(Integer, nullable=False, default=5)
+    current_connections = Column(Integer, nullable=False, default=0)
+    fail2ban_violations = Column(Integer, nullable=False, default=0)
+    last_violation_at = Column(DateTime, nullable=True)
+    adblock_enabled = Column(Boolean, nullable=False, default=True)
+    custom_blocked_domains = Column(String(2000), nullable=True)  # JSON array
+
     next_plan = relationship(
         "NextPlan",
         uselist=False,
         back_populates="user",
         cascade="all, delete-orphan"
     )
+
+    # Enhanced relationships
+    traffic_violations = relationship("TrafficViolation", cascade="all, delete-orphan")
+    connection_logs = relationship("ConnectionLog", cascade="all, delete-orphan")
+    user_dns_rules = relationship("UserDNSRule", cascade="all, delete-orphan")
 
     @hybrid_property
     def reseted_usage(self) -> int:

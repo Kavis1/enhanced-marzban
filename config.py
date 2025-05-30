@@ -146,3 +146,47 @@ JOB_RECORD_NODE_USAGES_INTERVAL = config("JOB_RECORD_NODE_USAGES_INTERVAL", cast
 JOB_RECORD_USER_USAGES_INTERVAL = config("JOB_RECORD_USER_USAGES_INTERVAL", cast=int, default=10)
 JOB_REVIEW_USERS_INTERVAL = config("JOB_REVIEW_USERS_INTERVAL", cast=int, default=10)
 JOB_SEND_NOTIFICATIONS_INTERVAL = config("JOB_SEND_NOTIFICATIONS_INTERVAL", cast=int, default=30)
+
+# Enhanced Marzban Features Configuration
+
+# Two-Factor Authentication
+TWO_FACTOR_AUTH_ENABLED = config("TWO_FACTOR_AUTH_ENABLED", cast=bool, default=True)
+TWO_FACTOR_ISSUER_NAME = config("TWO_FACTOR_ISSUER_NAME", default="Enhanced Marzban")
+TWO_FACTOR_BACKUP_CODES_COUNT = config("TWO_FACTOR_BACKUP_CODES_COUNT", cast=int, default=10)
+
+# Fail2ban Integration
+FAIL2BAN_ENABLED = config("FAIL2BAN_ENABLED", cast=bool, default=True)
+FAIL2BAN_LOG_PATH = config("FAIL2BAN_LOG_PATH", default="/var/log/marzban/fail2ban.log")
+FAIL2BAN_MAX_VIOLATIONS = config("FAIL2BAN_MAX_VIOLATIONS", cast=int, default=3)
+TORRENT_DETECTION_ENABLED = config("TORRENT_DETECTION_ENABLED", cast=bool, default=True)
+TRAFFIC_ANALYSIS_ENABLED = config("TRAFFIC_ANALYSIS_ENABLED", cast=bool, default=True)
+FAIL2BAN_BAN_DURATION = config("FAIL2BAN_BAN_DURATION", cast=int, default=3600)  # seconds
+
+# Connection Limiting
+CONNECTION_LIMIT_ENABLED = config("CONNECTION_LIMIT_ENABLED", cast=bool, default=True)
+DEFAULT_MAX_CONNECTIONS = config("DEFAULT_MAX_CONNECTIONS", cast=int, default=5)
+CONNECTION_TRACKING_INTERVAL = config("CONNECTION_TRACKING_INTERVAL", cast=int, default=30)
+
+# DNS Override
+DNS_OVERRIDE_ENABLED = config("DNS_OVERRIDE_ENABLED", cast=bool, default=True)
+DNS_OVERRIDE_SERVERS = config(
+    "DNS_OVERRIDE_SERVERS",
+    default="1.1.1.1,8.8.8.8",
+    cast=lambda v: [server.strip() for server in v.split(',')]
+)
+DNS_CACHE_TTL = config("DNS_CACHE_TTL", cast=int, default=300)  # seconds
+
+# Ad-blocking
+ADBLOCK_ENABLED = config("ADBLOCK_ENABLED", cast=bool, default=True)
+ADBLOCK_UPDATE_INTERVAL = config("ADBLOCK_UPDATE_INTERVAL", cast=int, default=86400)  # 24 hours
+ADBLOCK_DEFAULT_LISTS = config(
+    "ADBLOCK_DEFAULT_LISTS",
+    default="easylist,easyprivacy,malware",
+    cast=lambda v: [list_name.strip() for list_name in v.split(',')]
+)
+
+# Performance and Cleanup
+LOG_CLEANUP_ENABLED = config("LOG_CLEANUP_ENABLED", cast=bool, default=True)
+LOG_RETENTION_DAYS = config("LOG_RETENTION_DAYS", cast=int, default=30)
+CACHE_CLEANUP_INTERVAL = config("CACHE_CLEANUP_INTERVAL", cast=int, default=3600)  # 1 hour
+PERFORMANCE_MONITORING_ENABLED = config("PERFORMANCE_MONITORING_ENABLED", cast=bool, default=True)

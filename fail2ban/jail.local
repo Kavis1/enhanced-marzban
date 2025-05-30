@@ -1,0 +1,62 @@
+# Fail2ban configuration for Enhanced Marzban
+# Place this file in /etc/fail2ban/jail.local
+
+[DEFAULT]
+# Ban hosts for one hour:
+bantime = 3600
+
+# Override /etc/fail2ban/jail.d/00-firewalld.conf:
+banaction = iptables-multiport
+
+# A host is banned if it has generated "maxretry" during the last "findtime" seconds.
+findtime = 600
+maxretry = 3
+
+# "ignoreip" can be a list of IP addresses, CIDR masks or DNS hosts. Fail2ban
+# will not ban a host which matches an address in this list. Several addresses
+# can be defined using space (and/or comma) separator.
+ignoreip = 127.0.0.1/8 ::1
+
+# External command that will take an IP address/port as arguments
+# This should be a script that calls the Marzban API to disable the user
+banaction_allports = marzban-ban
+
+[marzban-violations]
+enabled = true
+port = all
+filter = marzban-violations
+logpath = /var/log/marzban/fail2ban.log
+maxretry = 3
+findtime = 3600
+bantime = 3600
+action = marzban-ban[name=%(__name__)s, port="%(port)s", protocol="%(protocol)s"]
+
+[marzban-torrent]
+enabled = true
+port = all
+filter = marzban-torrent
+logpath = /var/log/marzban/fail2ban.log
+maxretry = 1
+findtime = 3600
+bantime = 7200
+action = marzban-ban[name=%(__name__)s, port="%(port)s", protocol="%(protocol)s"]
+
+[marzban-connection-limit]
+enabled = true
+port = all
+filter = marzban-connection-limit
+logpath = /var/log/marzban/fail2ban.log
+maxretry = 5
+findtime = 300
+bantime = 1800
+action = marzban-ban[name=%(__name__)s, port="%(port)s", protocol="%(protocol)s"]
+
+[marzban-suspicious]
+enabled = true
+port = all
+filter = marzban-suspicious
+logpath = /var/log/marzban/fail2ban.log
+maxretry = 2
+findtime = 1800
+bantime = 3600
+action = marzban-ban[name=%(__name__)s, port="%(port)s", protocol="%(protocol)s"]
