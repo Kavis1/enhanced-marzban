@@ -9,11 +9,10 @@
 
 set -eo pipefail
 
-# Handle curl execution case
-if [[ -z "${BASH_SOURCE[0]:-}" ]]; then
+# Handle curl execution case - avoid BASH_SOURCE issues
+SCRIPT_NAME="${0##*/}"
+if [[ "$SCRIPT_NAME" == "bash" ]] || [[ "$SCRIPT_NAME" == "-bash" ]]; then
     SCRIPT_NAME="install-enhanced-marzban.sh"
-else
-    SCRIPT_NAME="${BASH_SOURCE[0]}"
 fi
 
 # Colors for output
@@ -1522,11 +1521,5 @@ main() {
     show_completion_message
 }
 
-# Check if script is being sourced or executed directly
-if [[ "$SCRIPT_NAME" == "${0}" ]] || [[ "$SCRIPT_NAME" == "install-enhanced-marzban.sh" ]]; then
-    # Script is being executed directly
-    main "$@"
-else
-    # Script is being sourced
-    print_status "Enhanced Marzban installation script loaded"
-fi
+# Execute main function - always run when script is executed
+main "$@"
