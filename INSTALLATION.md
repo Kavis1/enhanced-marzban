@@ -7,19 +7,19 @@ The Enhanced Marzban installation script provides a complete, automated deployme
 ### Quick Installation
 
 ```bash
-sudo bash -c "$(curl -sL https://github.com/Kavis1/enhanced-marzban/raw/main/scripts/install-enhanced-marzban.sh)" @ install
+sudo bash -c "$(curl -sL https://github.com/Kavis1/enhanced-marzban/raw/main/install.sh)" @ install
 ```
 
 ### Installation with Custom Domain
 
 ```bash
-sudo bash -c "$(curl -sL https://github.com/Kavis1/enhanced-marzban/raw/main/scripts/install-enhanced-marzban.sh)" @ install --domain your-domain.com
+sudo bash -c "$(curl -sL https://github.com/Kavis1/enhanced-marzban/raw/main/install.sh)" @ install --domain your-domain.com
 ```
 
 ### Silent Installation (No Prompts)
 
 ```bash
-sudo bash -c "$(curl -sL https://github.com/Kavis1/enhanced-marzban/raw/main/scripts/install-enhanced-marzban.sh)" @ install --silent
+sudo bash -c "$(curl -sL https://github.com/Kavis1/enhanced-marzban/raw/main/install.sh)" @ install --silent
 ```
 
 ## 📋 What Gets Installed

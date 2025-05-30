@@ -111,13 +111,7 @@ Enhanced Marzban включает все функции оригинальног
 Запустите следующую команду для автоматической установки Enhanced Marzban:
 
 ```bash
-# Клонируйте репозиторий
-git clone https://github.com/Kavis1/enhanced-marzban.git
-cd enhanced-marzban
-
-# Запустите скрипт установки
-sudo chmod +x scripts/install-enhanced-marzban.sh
-sudo ./scripts/install-enhanced-marzban.sh
+sudo bash -c "$(curl -sL https://github.com/Kavis1/enhanced-marzban/raw/main/install.sh)" @ install
 ```
 
 ### 📋 Системные требования

@@ -12,10 +12,10 @@ The `BASH_SOURCE[0]: unbound variable` error has been **completely fixed** in th
 sudo bash -c "$(curl -sL https://github.com/Kavis1/enhanced-marzban/raw/22b98937/scripts/install-enhanced-marzban.sh)" @ install
 ```
 
-### ✅ **Standard Installation (After CDN Cache Clears)**
+### ✅ **Standard Installation (Recommended)**
 
 ```bash
-sudo bash -c "$(curl -sL https://github.com/Kavis1/enhanced-marzban/raw/main/scripts/install-enhanced-marzban.sh)" @ install
+sudo bash -c "$(curl -sL https://github.com/Kavis1/enhanced-marzban/raw/main/install.sh)" @ install
 ```
 
 ### ✅ **With Custom Domain**

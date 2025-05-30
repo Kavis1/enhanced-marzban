@@ -144,51 +144,28 @@ detect_os() {
 }
 
 check_system_requirements() {
-    print_step 1 15 "Checking system requirements"
+    print_step 1 14 "Checking system compatibility"
 
-    # Check OS compatibility
-    case "$DETECTED_OS" in
-        ubuntu)
-            local major_version=$(echo "$DETECTED_VERSION" | cut -d. -f1)
-            local minor_version=$(echo "$DETECTED_VERSION" | cut -d. -f2)
-            if [[ $major_version -lt 20 ]] || [[ $major_version -eq 20 && $minor_version -lt 4 ]]; then
-                print_error "Ubuntu 20.04 or higher is required (detected: $DETECTED_VERSION)"
-                exit 1
-            fi
-            ;;
-        debian)
-            local major_version=$(echo "$DETECTED_VERSION" | cut -d. -f1)
-            if [[ $major_version -lt 11 ]]; then
-                print_error "Debian 11 or higher is required (detected: $DETECTED_VERSION)"
-                exit 1
-            fi
-            ;;
-        centos|rhel)
-            local major_version=$(echo "$DETECTED_VERSION" | cut -d. -f1)
-            if [[ $major_version -lt 8 ]]; then
-                print_error "CentOS/RHEL 8 or higher is required (detected: $DETECTED_VERSION)"
-                exit 1
-            fi
-            ;;
-        *)
-            print_warning "Unsupported OS detected: $DETECTED_OS $DETECTED_VERSION. Proceeding with Ubuntu/Debian packages..."
-            ;;
-    esac
+    # Just log the detected OS without strict requirements
+    print_status "Detected OS: $DETECTED_OS $DETECTED_VERSION"
 
-    # Check memory
+    # Check memory (warning only)
     local memory_gb=$(free -g | awk '/^Mem:/{print $2}')
     if [ "$memory_gb" -lt 2 ]; then
         print_warning "Less than 2GB RAM detected. Enhanced Marzban may run slowly."
+    else
+        print_status "Memory: ${memory_gb}GB available"
     fi
 
-    # Check disk space
+    # Check disk space (warning only)
     local disk_space_gb=$(df / | awk 'NR==2{print int($4/1024/1024)}')
-    if [ "$disk_space_gb" -lt 10 ]; then
-        print_error "At least 10GB free disk space is required"
-        exit 1
+    if [ "$disk_space_gb" -lt 5 ]; then
+        print_warning "Low disk space detected: ${disk_space_gb}GB available"
+    else
+        print_status "Disk space: ${disk_space_gb}GB available"
     fi
 
-    print_success "System requirements check passed"
+    print_success "System compatibility check completed"
 }
 
 parse_arguments() {
@@ -242,7 +219,7 @@ show_help() {
 }
 
 create_backup() {
-    print_step 2 15 "Creating backup of existing configurations"
+    print_step 2 14 "Creating backup of existing configurations"
 
     mkdir -p "$BACKUP_DIR"
     local backup_timestamp=$(date +%Y%m%d_%H%M%S)
@@ -268,7 +245,7 @@ create_backup() {
 }
 
 install_dependencies() {
-    print_step 3 15 "Installing system dependencies"
+    print_step 3 14 "Installing system dependencies"
 
     # Update package lists
     print_progress 1 10 "Updating package lists..."
@@ -388,7 +365,7 @@ install_dependencies() {
 }
 
 setup_directories() {
-    print_step 4 15 "Setting up directories and permissions"
+    print_step 4 14 "Setting up directories and permissions"
 
     # Create main directories
     mkdir -p "$MARZBAN_DIR" "$LOG_DIR" "$SSL_DIR" "$BACKUP_DIR" "$SCRIPT_DIR"
@@ -406,7 +383,7 @@ setup_directories() {
 }
 
 clone_repository() {
-    print_step 5 15 "Cloning Enhanced Marzban repository"
+    print_step 5 14 "Cloning Enhanced Marzban repository"
 
     # Remove existing directory if it exists
     if [ -d "$MARZBAN_DIR" ]; then
@@ -425,7 +402,7 @@ clone_repository() {
 }
 
 install_python_dependencies() {
-    print_step 6 15 "Installing Python dependencies"
+    print_step 6 14 "Installing Python dependencies"
 
     cd "$MARZBAN_DIR"
 
@@ -451,7 +428,7 @@ install_python_dependencies() {
 }
 
 generate_secrets() {
-    print_step 7 15 "Generating secure credentials"
+    print_step 7 14 "Generating secure credentials"
 
     # Generate admin password
     ADMIN_PASSWORD=$(generate_password 16)
@@ -474,7 +451,7 @@ generate_secrets() {
 }
 
 setup_database() {
-    print_step 8 15 "Setting up PostgreSQL database"
+    print_step 8 14 "Setting up PostgreSQL database"
 
     # Start PostgreSQL service
     systemctl start postgresql
@@ -533,7 +510,7 @@ except Exception as e:
 }
 
 create_configuration() {
-    print_step 9 15 "Creating Enhanced Marzban configuration"
+    print_step 9 14 "Creating Enhanced Marzban configuration"
 
     cd "$MARZBAN_DIR"
 
@@ -605,7 +582,7 @@ EOF
 }
 
 create_admin_user() {
-    print_step 10 15 "Creating admin user"
+    print_step 10 14 "Creating admin user"
 
     cd "$MARZBAN_DIR"
 
@@ -655,7 +632,7 @@ except Exception as e:
 }
 
 setup_fail2ban() {
-    print_step 11 15 "Setting up Fail2ban integration"
+    print_step 11 14 "Setting up Fail2ban integration"
 
     cd "$MARZBAN_DIR"
 
@@ -708,7 +685,7 @@ setup_fail2ban() {
 }
 
 setup_systemd_service() {
-    print_step 12 15 "Setting up systemd service"
+    print_step 12 14 "Setting up systemd service"
 
     # Create systemd service file
     cat > /etc/systemd/system/enhanced-marzban.service << EOF
@@ -754,7 +731,7 @@ EOF
 }
 
 setup_nginx() {
-    print_step 13 15 "Setting up Nginx configuration"
+    print_step 13 14 "Setting up Nginx configuration"
 
     # Determine server name
     local server_name="_"
@@ -935,7 +912,7 @@ EOF
 }
 
 setup_ssl_certificates() {
-    print_step 14 15 "Setting up SSL certificates"
+    print_step 14 14 "Setting up SSL certificates"
 
     # Create SSL directory
     mkdir -p "$SSL_DIR"
@@ -987,7 +964,7 @@ create_self_signed_certificate() {
 }
 
 configure_firewall() {
-    print_step 15 15 "Configuring firewall"
+    print_step 15 14 "Configuring firewall"
 
     case "$DETECTED_OS" in
         ubuntu|debian)
