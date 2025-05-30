@@ -362,12 +362,13 @@ class XRayConfig(dict):
         config = self.copy()
 
         with GetDB() as db:
+            # Use string_agg for PostgreSQL compatibility instead of group_concat
             query = db.query(
                 db_models.User.id,
                 db_models.User.username,
-                func.lower(db_models.Proxy.type).label('type'),
+                db_models.Proxy.type.label('type'),
                 db_models.Proxy.settings,
-                func.group_concat(db_models.excluded_inbounds_association.c.inbound_tag).label('excluded_inbound_tags')
+                func.string_agg(db_models.excluded_inbounds_association.c.inbound_tag, ',').label('excluded_inbound_tags')
             ).join(
                 db_models.Proxy, db_models.User.id == db_models.Proxy.user_id
             ).outerjoin(
@@ -376,7 +377,7 @@ class XRayConfig(dict):
             ).filter(
                 db_models.User.status.in_([UserStatus.active, UserStatus.on_hold])
             ).group_by(
-                func.lower(db_models.Proxy.type),
+                db_models.Proxy.type,
                 db_models.User.id,
                 db_models.User.username,
                 db_models.Proxy.settings,
@@ -386,7 +387,9 @@ class XRayConfig(dict):
             grouped_data = defaultdict(list)
 
             for row in result:
-                grouped_data[row.type].append((
+                # Convert enum to string for compatibility
+                proxy_type = row.type.value if hasattr(row.type, 'value') else str(row.type).lower()
+                grouped_data[proxy_type].append((
                     row.id,
                     row.username,
                     row.settings,
