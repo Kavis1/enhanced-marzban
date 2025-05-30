@@ -429,8 +429,64 @@ install_python_dependencies() {
     log_action "Python dependencies installed"
 }
 
+build_frontend() {
+    print_step 7 16 "Building Enhanced frontend dashboard"
+
+    cd "$MARZBAN_DIR"
+
+    # Check if dashboard directory exists
+    if [ ! -d "app/dashboard" ]; then
+        print_error "Dashboard source code not found"
+        return 1
+    fi
+
+    # Install Node.js and npm if not present
+    print_progress 1 5 "Installing Node.js and npm..."
+    if ! command -v node >/dev/null 2>&1; then
+        curl -fsSL https://deb.nodesource.com/setup_18.x | bash -
+        apt-get install -y nodejs
+    fi
+
+    # Verify Node.js installation
+    if ! command -v node >/dev/null 2>&1 || ! command -v npm >/dev/null 2>&1; then
+        print_error "Failed to install Node.js and npm"
+        return 1
+    fi
+
+    print_progress 2 5 "Installing frontend dependencies..."
+    cd app/dashboard
+
+    # Install dependencies
+    npm install --silent --no-progress 2>/dev/null || {
+        print_warning "npm install failed, trying with --legacy-peer-deps"
+        npm install --legacy-peer-deps --silent --no-progress 2>/dev/null
+    }
+
+    print_progress 3 5 "Building Enhanced dashboard..."
+    # Build the dashboard
+    npm run build 2>/dev/null || {
+        print_error "Failed to build dashboard"
+        return 1
+    }
+
+    print_progress 4 5 "Copying built files..."
+    # Copy built files to the correct location
+    if [ -d "dist" ]; then
+        rm -rf ../dashboard_dist 2>/dev/null
+        mv dist ../dashboard_dist
+        print_success "Enhanced dashboard built successfully"
+    else
+        print_error "Build output not found"
+        return 1
+    fi
+
+    print_progress 5 5 "Frontend build completed"
+    cd "$MARZBAN_DIR"
+    log_action "Enhanced frontend dashboard built"
+}
+
 generate_secrets() {
-    print_step 7 14 "Generating secure credentials"
+    print_step 8 16 "Generating secure credentials"
 
     # Generate admin password
     ADMIN_PASSWORD=$(generate_password 16)
@@ -453,7 +509,7 @@ generate_secrets() {
 }
 
 setup_database() {
-    print_step 8 14 "Setting up PostgreSQL database"
+    print_step 9 16 "Setting up PostgreSQL database"
 
     # Start PostgreSQL service
     systemctl start postgresql
@@ -574,7 +630,7 @@ except Exception as e:
 }
 
 create_configuration() {
-    print_step 9 14 "Creating Enhanced Marzban configuration"
+    print_step 10 16 "Creating Enhanced Marzban configuration"
 
     cd "$MARZBAN_DIR"
 
@@ -651,7 +707,7 @@ EOF
 }
 
 create_admin_user() {
-    print_step 10 14 "Creating admin user"
+    print_step 11 16 "Creating admin user"
 
     cd "$MARZBAN_DIR"
 
@@ -709,7 +765,7 @@ except Exception as e:
 }
 
 setup_fail2ban() {
-    print_step 11 14 "Setting up Fail2ban integration"
+    print_step 12 16 "Setting up Fail2ban integration"
 
     cd "$MARZBAN_DIR"
 
@@ -762,7 +818,7 @@ setup_fail2ban() {
 }
 
 setup_systemd_service() {
-    print_step 12 14 "Setting up systemd service"
+    print_step 13 16 "Setting up systemd service"
 
     # Create systemd service file
     cat > /etc/systemd/system/enhanced-marzban.service << EOF
@@ -808,7 +864,7 @@ EOF
 }
 
 setup_nginx() {
-    print_step 13 14 "Setting up Nginx configuration"
+    print_step 14 16 "Setting up Nginx configuration"
 
     # Create necessary Nginx directories
     mkdir -p "$NGINX_DIR/sites-available" "$NGINX_DIR/sites-enabled"
@@ -949,7 +1005,7 @@ EOF
 }
 
 setup_ssl_certificates() {
-    print_step 14 14 "Setting up SSL certificates"
+    print_step 15 16 "Setting up SSL certificates"
 
     # Create SSL directory
     mkdir -p "$SSL_DIR"
@@ -1001,7 +1057,7 @@ create_self_signed_certificate() {
 }
 
 configure_firewall() {
-    print_step 15 14 "Configuring firewall"
+    print_step 16 16 "Configuring firewall"
 
     case "$DETECTED_OS" in
         ubuntu|debian)
@@ -1505,6 +1561,9 @@ main() {
 
     # Install Python dependencies
     install_python_dependencies
+
+    # Build Enhanced frontend dashboard
+    build_frontend
 
     # Generate secure credentials
     generate_secrets
