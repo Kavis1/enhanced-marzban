@@ -461,37 +461,86 @@ setup_database() {
 
     # Create database and user
     print_progress 1 4 "Creating database and user..."
+
+    # Set password for postgres user
+    sudo -u postgres psql -c "ALTER USER postgres PASSWORD '$DATABASE_PASSWORD';" 2>/dev/null || true
+
+    # Create database and marzban user
     sudo -u postgres psql -c "CREATE DATABASE enhanced_marzban;" 2>/dev/null || true
     sudo -u postgres psql -c "CREATE USER marzban WITH PASSWORD '$DATABASE_PASSWORD';" 2>/dev/null || true
     sudo -u postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE enhanced_marzban TO marzban;" 2>/dev/null || true
     sudo -u postgres psql -c "ALTER USER marzban CREATEDB;" 2>/dev/null || true
+    sudo -u postgres psql -c "ALTER USER marzban SUPERUSER;" 2>/dev/null || true
 
     # Configure PostgreSQL for local connections
     print_progress 2 4 "Configuring PostgreSQL..."
-    local pg_version=$(sudo -u postgres psql -t -c "SELECT version();" | grep -oE '[0-9]+\.[0-9]+' | head -1)
+
+    # Find PostgreSQL version and config directory
+    local pg_version=$(sudo -u postgres psql -t -c "SELECT version();" | grep -oE '[0-9]+' | head -1)
     local pg_config_dir="/etc/postgresql/$pg_version/main"
 
-    if [ -d "$pg_config_dir" ]; then
-        # Update pg_hba.conf for local connections
-        sed -i "s/#local   all             all                                     peer/local   all             all                                     md5/" "$pg_config_dir/pg_hba.conf" 2>/dev/null || true
-        sed -i "s/local   all             all                                     peer/local   all             all                                     md5/" "$pg_config_dir/pg_hba.conf" 2>/dev/null || true
-
-        # Restart PostgreSQL
-        systemctl restart postgresql
+    # Alternative paths for different distributions
+    if [ ! -d "$pg_config_dir" ]; then
+        pg_config_dir="/var/lib/pgsql/data"
+    fi
+    if [ ! -d "$pg_config_dir" ]; then
+        pg_config_dir="/etc/postgresql/main"
     fi
 
-    print_progress 3 4 "Running database migrations..."
-    cd "$MARZBAN_DIR"
+    print_status "PostgreSQL config directory: $pg_config_dir"
 
-    # Create .env file temporarily for database setup
-    cat > .env.temp << EOF
-SQLALCHEMY_DATABASE_URL=postgresql://marzban:$DATABASE_PASSWORD@localhost/enhanced_marzban
-EOF
+    if [ -f "$pg_config_dir/pg_hba.conf" ]; then
+        # Backup original pg_hba.conf
+        cp "$pg_config_dir/pg_hba.conf" "$pg_config_dir/pg_hba.conf.backup" 2>/dev/null || true
+
+        # Update pg_hba.conf for local connections with md5 authentication
+        sed -i 's/local   all             all                                     peer/local   all             all                                     md5/g' "$pg_config_dir/pg_hba.conf"
+        sed -i 's/local   all             postgres                                peer/local   all             postgres                                md5/g' "$pg_config_dir/pg_hba.conf"
+        sed -i 's/local   all             all                                     ident/local   all             all                                     md5/g' "$pg_config_dir/pg_hba.conf"
+
+        print_status "Updated pg_hba.conf for password authentication"
+
+        # Restart PostgreSQL to apply changes
+        systemctl restart postgresql
+        sleep 2
+    else
+        print_warning "pg_hba.conf not found at $pg_config_dir"
+    fi
+
+    print_progress 3 4 "Testing database connection..."
+
+    # Test database connection first
+    local connection_test=$(PGPASSWORD="$DATABASE_PASSWORD" psql -h localhost -U marzban -d enhanced_marzban -c "SELECT 1;" 2>&1)
+    if [[ $connection_test == *"ERROR"* ]]; then
+        print_error "Database connection test failed: $connection_test"
+        print_status "Trying to fix authentication..."
+
+        # Try alternative authentication method
+        sudo -u postgres psql -c "ALTER USER marzban WITH PASSWORD '$DATABASE_PASSWORD';"
+        systemctl restart postgresql
+        sleep 3
+
+        # Test again
+        connection_test=$(PGPASSWORD="$DATABASE_PASSWORD" psql -h localhost -U marzban -d enhanced_marzban -c "SELECT 1;" 2>&1)
+        if [[ $connection_test == *"ERROR"* ]]; then
+            print_error "Database connection still failing. Trying peer authentication..."
+            # Use peer authentication as fallback
+            DATABASE_URL="postgresql:///enhanced_marzban?host=/var/run/postgresql&user=marzban"
+        else
+            DATABASE_URL="postgresql://marzban:$DATABASE_PASSWORD@localhost/enhanced_marzban"
+        fi
+    else
+        DATABASE_URL="postgresql://marzban:$DATABASE_PASSWORD@localhost/enhanced_marzban"
+        print_success "Database connection test passed"
+    fi
+
+    print_progress 4 4 "Running database migrations..."
+    cd "$MARZBAN_DIR"
 
     # Run database migrations
     python3 -c "
 import os
-os.environ['SQLALCHEMY_DATABASE_URL'] = 'postgresql://marzban:$DATABASE_PASSWORD@localhost/enhanced_marzban'
+os.environ['SQLALCHEMY_DATABASE_URL'] = '$DATABASE_URL'
 from app.db import engine
 from app.db.models_enhanced import Base
 from app.db.models import Base as OriginalBase
@@ -504,8 +553,6 @@ except Exception as e:
     exit(1)
 "
 
-    rm -f .env.temp
-
     print_progress 4 4 "Database setup completed"
     print_success "PostgreSQL database configured successfully"
     log_action "Database setup completed"
@@ -516,13 +563,18 @@ create_configuration() {
 
     cd "$MARZBAN_DIR"
 
+    # Use the DATABASE_URL that was tested and working
+    if [ -z "$DATABASE_URL" ]; then
+        DATABASE_URL="postgresql://marzban:$DATABASE_PASSWORD@localhost/enhanced_marzban"
+    fi
+
     # Create .env configuration file
     cat > .env << EOF
 # Enhanced Marzban Configuration
 # Generated on $(date)
 
 # Database Configuration
-SQLALCHEMY_DATABASE_URL=postgresql://marzban:$DATABASE_PASSWORD@localhost/enhanced_marzban
+SQLALCHEMY_DATABASE_URL=$DATABASE_URL
 
 # Application Configuration
 UVICORN_HOST=0.0.0.0
@@ -588,6 +640,11 @@ create_admin_user() {
 
     cd "$MARZBAN_DIR"
 
+    # Use the same DATABASE_URL that was tested
+    if [ -z "$DATABASE_URL" ]; then
+        DATABASE_URL="postgresql://marzban:$DATABASE_PASSWORD@localhost/enhanced_marzban"
+    fi
+
     # Create admin user
     python3 -c "
 import os
@@ -595,7 +652,7 @@ import sys
 sys.path.append('.')
 
 # Set environment variables
-os.environ['SQLALCHEMY_DATABASE_URL'] = 'postgresql://marzban:$DATABASE_PASSWORD@localhost/enhanced_marzban'
+os.environ['SQLALCHEMY_DATABASE_URL'] = '$DATABASE_URL'
 
 from app.db import get_db
 from app.models.admin import Admin
