@@ -458,79 +458,67 @@ setup_database() {
     # Start PostgreSQL service
     systemctl start postgresql
     systemctl enable postgresql
+    sleep 3
 
-    # Create database and user
-    print_progress 1 4 "Creating database and user..."
+    print_progress 1 4 "Setting up PostgreSQL authentication..."
 
-    # Use peer authentication for initial setup (no password required)
-    sudo -u postgres createdb enhanced_marzban 2>/dev/null || true
-    sudo -u postgres createuser -s marzban 2>/dev/null || true
+    # Configure PostgreSQL to use trust authentication temporarily for setup
+    local pg_version=$(ls /etc/postgresql/ 2>/dev/null | head -1)
+    if [ -z "$pg_version" ]; then
+        pg_version="14"  # Default fallback
+    fi
 
-    # Set password for marzban user using peer authentication
-    sudo -u postgres psql -c "ALTER USER marzban PASSWORD '$DATABASE_PASSWORD';" 2>/dev/null || true
-
-    # Grant privileges
-    sudo -u postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE enhanced_marzban TO marzban;" 2>/dev/null || true
-
-    # Configure PostgreSQL for local connections
-    print_progress 2 4 "Configuring PostgreSQL..."
-
-    # Find PostgreSQL version and config directory
-    local pg_version=$(sudo -u postgres psql -t -c "SELECT version();" | grep -oE '[0-9]+' | head -1)
     local pg_config_dir="/etc/postgresql/$pg_version/main"
+    local pg_hba_conf="$pg_config_dir/pg_hba.conf"
 
     # Alternative paths for different distributions
-    if [ ! -d "$pg_config_dir" ]; then
+    if [ ! -f "$pg_hba_conf" ]; then
         pg_config_dir="/var/lib/pgsql/data"
+        pg_hba_conf="$pg_config_dir/pg_hba.conf"
     fi
-    if [ ! -d "$pg_config_dir" ]; then
-        pg_config_dir="/etc/postgresql/main"
+    if [ ! -f "$pg_hba_conf" ]; then
+        pg_config_dir="/etc/postgresql"
+        pg_hba_conf="$pg_config_dir/pg_hba.conf"
     fi
 
-    print_status "PostgreSQL config directory: $pg_config_dir"
+    print_status "PostgreSQL config: $pg_hba_conf"
 
-    if [ -f "$pg_config_dir/pg_hba.conf" ]; then
-        # Backup original pg_hba.conf
-        cp "$pg_config_dir/pg_hba.conf" "$pg_config_dir/pg_hba.conf.backup" 2>/dev/null || true
+    if [ -f "$pg_hba_conf" ]; then
+        # Backup original configuration
+        cp "$pg_hba_conf" "$pg_hba_conf.original" 2>/dev/null || true
 
-        # Update pg_hba.conf for local connections with md5 authentication
-        sed -i 's/local   all             all                                     peer/local   all             all                                     md5/g' "$pg_config_dir/pg_hba.conf"
-        sed -i 's/local   all             postgres                                peer/local   all             postgres                                md5/g' "$pg_config_dir/pg_hba.conf"
-        sed -i 's/local   all             all                                     ident/local   all             all                                     md5/g' "$pg_config_dir/pg_hba.conf"
+        # Create a temporary configuration with trust authentication
+        cat > "$pg_hba_conf" << EOF
+# Temporary configuration for Enhanced Marzban setup
+local   all             postgres                                trust
+local   all             all                                     trust
+host    all             all             127.0.0.1/32            trust
+host    all             all             ::1/128                 trust
+EOF
 
-        print_status "Updated pg_hba.conf for password authentication"
-
-        # Restart PostgreSQL to apply changes
+        # Restart PostgreSQL with new configuration
         systemctl restart postgresql
-        sleep 2
+        sleep 3
+        print_status "Configured temporary trust authentication"
     else
-        print_warning "pg_hba.conf not found at $pg_config_dir"
+        print_error "PostgreSQL configuration file not found"
+        exit 1
     fi
 
-    print_progress 3 4 "Configuring database connection..."
+    print_progress 2 4 "Creating database and user..."
 
-    # Set DATABASE_URL for password authentication
-    DATABASE_URL="postgresql://marzban:$DATABASE_PASSWORD@localhost/enhanced_marzban"
+    # Now create database and user without password prompts
+    sudo -u postgres createdb enhanced_marzban 2>/dev/null || true
+    sudo -u postgres createuser marzban 2>/dev/null || true
+    sudo -u postgres psql -c "ALTER USER marzban WITH SUPERUSER;" 2>/dev/null || true
+    sudo -u postgres psql -c "ALTER USER marzban WITH PASSWORD '$DATABASE_PASSWORD';" 2>/dev/null || true
+    sudo -u postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE enhanced_marzban TO marzban;" 2>/dev/null || true
 
-    # Test if we can connect with password authentication
-    local test_result=$(PGPASSWORD="$DATABASE_PASSWORD" psql -h localhost -U marzban -d enhanced_marzban -c "SELECT 1;" 2>&1)
-    if [[ $test_result == *"FATAL"* ]] || [[ $test_result == *"ERROR"* ]]; then
-        print_warning "Password authentication not working, trying peer authentication..."
-
-        # Create system user for peer authentication if needed
-        if ! id "marzban" &>/dev/null; then
-            useradd -r -s /bin/false marzban 2>/dev/null || true
-        fi
-
-        # Use peer authentication as fallback
-        DATABASE_URL="postgresql:///enhanced_marzban?host=/var/run/postgresql&user=marzban"
-        print_status "Using peer authentication for database connection"
-    else
-        print_success "Password authentication working"
-    fi
-
-    print_progress 4 4 "Running database migrations..."
+    print_progress 3 4 "Running database migrations..."
     cd "$MARZBAN_DIR"
+
+    # Set DATABASE_URL for trust authentication during setup
+    DATABASE_URL="postgresql://marzban@localhost/enhanced_marzban"
 
     # Run database migrations
     python3 -c "
@@ -548,7 +536,27 @@ except Exception as e:
     exit(1)
 "
 
-    print_progress 4 4 "Database setup completed"
+    print_progress 4 4 "Restoring secure PostgreSQL configuration..."
+
+    # Restore secure configuration with password authentication
+    if [ -f "$pg_hba_conf.original" ]; then
+        # Restore original configuration
+        cp "$pg_hba_conf.original" "$pg_hba_conf"
+
+        # Update for password authentication
+        sed -i 's/local   all             all                                     peer/local   all             all                                     md5/g' "$pg_hba_conf"
+        sed -i 's/local   all             postgres                                peer/local   all             postgres                                md5/g' "$pg_hba_conf"
+
+        # Restart PostgreSQL with secure configuration
+        systemctl restart postgresql
+        sleep 2
+
+        # Update DATABASE_URL for production use
+        DATABASE_URL="postgresql://marzban:$DATABASE_PASSWORD@localhost/enhanced_marzban"
+
+        print_status "Restored secure PostgreSQL authentication"
+    fi
+
     print_success "PostgreSQL database configured successfully"
     log_action "Database setup completed"
 }
