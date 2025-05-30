@@ -49,7 +49,7 @@ class Admin(Base):
 
     # Enhanced features
     two_factor = relationship("AdminTwoFactor", back_populates="admin", uselist=False, cascade="all, delete-orphan")
-    login_attempts = relationship("AdminLoginAttempt", cascade="all, delete-orphan")
+    login_attempts = relationship("AdminLoginAttempt", back_populates="admin", cascade="all, delete-orphan")
     sessions = relationship("AdminSession", cascade="all, delete-orphan")
 
 

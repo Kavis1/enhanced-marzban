@@ -5,7 +5,7 @@ Enhanced database models for Marzban features
 import json
 from datetime import datetime
 from sqlalchemy import (
-    Boolean, Column, DateTime, ForeignKey, Integer, String, Text, 
+    Boolean, Column, DateTime, ForeignKey, Integer, String, Text,
     BigInteger, Float, func, Index, UniqueConstraint
 )
 from sqlalchemy.orm import relationship
@@ -24,7 +24,7 @@ class AdminTwoFactor(Base):
     backup_codes = Column(Text, nullable=True)  # JSON array of backup codes
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     last_used = Column(DateTime(timezone=True), nullable=True)
-    
+
     # Relationship
     admin = relationship("Admin", back_populates="two_factor")
 
@@ -198,6 +198,7 @@ class AdminLoginAttempt(Base):
     __table_args__ = {'extend_existing': True}
 
     id = Column(Integer, primary_key=True, index=True)
+    admin_id = Column(Integer, ForeignKey("admins.id"), nullable=True)  # nullable for failed attempts
     username = Column(String(100), nullable=False, index=True)
     ip_address = Column(String(45), nullable=False)
     user_agent = Column(Text, nullable=True)
@@ -205,6 +206,9 @@ class AdminLoginAttempt(Base):
     failure_reason = Column(String(100), nullable=True)  # wrong_password, invalid_2fa, etc.
     two_factor_used = Column(Boolean, default=False)
     attempted_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    # Relationship
+    admin = relationship("Admin", back_populates="login_attempts")
 
 
 class AdminSession(Base):
