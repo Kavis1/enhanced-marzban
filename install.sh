@@ -524,13 +524,25 @@ EOF
     python3 -c "
 import os
 os.environ['SQLALCHEMY_DATABASE_URL'] = '$DATABASE_URL'
-from app.db import engine
+from app.db import engine, GetDB
 from app.db.models_enhanced import Base
-from app.db.models import Base as OriginalBase
+from app.db.models import Base as OriginalBase, JWT
 try:
     OriginalBase.metadata.create_all(bind=engine)
     Base.metadata.create_all(bind=engine)
     print('✓ Database tables created successfully')
+
+    # Ensure JWT secret key exists
+    with GetDB() as db:
+        jwt_record = db.query(JWT).first()
+        if not jwt_record:
+            jwt_record = JWT(secret_key=os.urandom(32).hex())
+            db.add(jwt_record)
+            db.commit()
+            print('✓ JWT secret key initialized')
+        else:
+            print('✓ JWT secret key already exists')
+
 except Exception as e:
     print(f'Database setup error: {e}')
     exit(1)
@@ -823,7 +835,7 @@ upstream enhanced_marzban {
     keepalive 32;
 }
 
-# HTTP server - redirect to HTTPS
+# HTTP server
 server {
     listen 80;
     listen [::]:80;
@@ -833,42 +845,6 @@ server {
     add_header X-Frame-Options DENY always;
     add_header X-Content-Type-Options nosniff always;
     add_header X-XSS-Protection "1; mode=block" always;
-
-    # Redirect all HTTP traffic to HTTPS
-    return 301 https://\$server_name\$request_uri;
-}
-
-# HTTPS server
-server {
-    listen 443 ssl http2;
-    listen [::]:443 ssl http2;
-    server_name $server_name;
-
-    # SSL configuration
-    ssl_certificate $SSL_DIR/marzban.crt;
-    ssl_certificate_key $SSL_DIR/marzban.key;
-    ssl_session_timeout 1d;
-    ssl_session_cache shared:SSL:50m;
-    ssl_session_tickets off;
-
-    # Modern SSL configuration
-    ssl_protocols TLSv1.2 TLSv1.3;
-    ssl_ciphers ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384;
-    ssl_prefer_server_ciphers off;
-
-    # Security headers
-    add_header Strict-Transport-Security "max-age=63072000; includeSubDomains; preload" always;
-    add_header X-Frame-Options DENY always;
-    add_header X-Content-Type-Options nosniff always;
-    add_header X-XSS-Protection "1; mode=block" always;
-    add_header Referrer-Policy "strict-origin-when-cross-origin" always;
-    add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self'; frame-ancestors 'none';" always;
-
-    # Gzip compression
-    gzip on;
-    gzip_vary on;
-    gzip_min_length 1024;
-    gzip_types text/plain text/css text/xml text/javascript application/javascript application/xml+rss application/json;
 
     # Dashboard with rate limiting
     location /dashboard {
@@ -948,13 +924,6 @@ server {
     location ~ /\\.git {
         deny all;
         return 404;
-    }
-
-    # Custom error pages
-    error_page 502 503 504 /50x.html;
-    location = /50x.html {
-        root /var/www/html;
-        internal;
     }
 }
 EOF
