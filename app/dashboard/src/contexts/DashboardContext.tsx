@@ -50,6 +50,7 @@ type DashboardStateType = {
   resetUsageUser: User | null;
   revokeSubscriptionUser: User | null;
   isEditingCore: boolean;
+  isEditingEnhanced: boolean;
   onCreateUser: (isOpen: boolean) => void;
   onEditingUser: (user: User | null) => void;
   onDeletingUser: (user: User | null) => void;
@@ -66,6 +67,7 @@ type DashboardStateType = {
   onEditingHosts: (isEditingHosts: boolean) => void;
   onEditingNodes: (isEditingHosts: boolean) => void;
   onShowingNodesUsage: (isShowingNodesUsage: boolean) => void;
+  onEditingEnhanced: (isEditingEnhanced: boolean) => void;
   resetDataUsage: (user: User) => Promise<void>;
   revokeSubscription: (user: User) => Promise<void>;
 };
@@ -123,6 +125,7 @@ export const useDashboard = create(
     },
     inbounds: new Map(),
     isEditingCore: false,
+    isEditingEnhanced: false,
     refetchUsers: () => {
       fetchUsers(get().filters);
     },
@@ -190,6 +193,9 @@ export const useDashboard = create(
     },
     onShowingNodesUsage: (isShowingNodesUsage: boolean) => {
       set({ isShowingNodesUsage });
+    },
+    onEditingEnhanced: (isEditingEnhanced: boolean) => {
+      set({ isEditingEnhanced });
     },
     setSubLink: (subscribeUrl) => {
       set({ subscribeUrl });

@@ -48,6 +48,7 @@ import { OnlineBadge } from "./OnlineBadge";
 import { OnlineStatus } from "./OnlineStatus";
 import { Pagination } from "./Pagination";
 import { StatusBadge } from "./StatusBadge";
+import { EnhancedUserControls } from "./EnhancedUserControls";
 
 const EmptySectionIcon = chakra(AddFileIcon);
 
@@ -755,6 +756,7 @@ const ActionButtons: FC<ActionButtonsProps> = ({ user }) => {
           <QRIcon />
         </IconButton>
       </Tooltip>
+      <EnhancedUserControls username={user.username} />
     </HStack>
   );
 };

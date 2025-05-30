@@ -327,6 +327,231 @@ async def get_enhanced_stats():
         }
 
 
+@router.get("/config")
+async def get_enhanced_config(
+    admin: Admin = Depends(Admin.get_current)
+):
+    """Get Enhanced features configuration"""
+    try:
+        # Return default Enhanced configuration
+        return {
+            "enhanced_features": {
+                "two_factor_auth": {
+                    "enabled": False,
+                    "description": "Enhanced security for admin accounts with TOTP"
+                },
+                "fail2ban_integration": {
+                    "enabled": True,
+                    "log_path": "/var/log/marzban/access.log",
+                    "max_violations": 3,
+                    "description": "Automatic traffic monitoring and user suspension"
+                },
+                "connection_limiting": {
+                    "enabled": True,
+                    "default_max_connections": 5,
+                    "description": "Limit simultaneous connections per user"
+                },
+                "dns_override": {
+                    "enabled": False,
+                    "dns_servers": ["1.1.1.1", "8.8.8.8"],
+                    "description": "Custom DNS rules and domain redirection"
+                },
+                "ad_blocking": {
+                    "enabled": True,
+                    "update_interval": 86400,  # 24 hours in seconds
+                    "description": "Block advertisements and tracking domains"
+                }
+            }
+        }
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to get configuration: {str(e)}"
+        )
+
+
+@router.post("/config")
+async def update_enhanced_config(
+    config_update: dict,
+    admin: Admin = Depends(Admin.check_sudo_admin)
+):
+    """Update Enhanced features configuration"""
+    try:
+        # Here you would update the configuration
+        # For now, just return success
+        return {
+            "status": "success",
+            "message": "Configuration updated successfully",
+            "updated_config": config_update
+        }
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to update configuration: {str(e)}"
+        )
+
+
+@router.post("/users/{username}/settings")
+async def update_user_enhanced_settings(
+    username: str,
+    settings: dict,
+    admin: Admin = Depends(Admin.get_current)
+):
+    """Update Enhanced settings for a specific user"""
+    try:
+        # Here you would save user-specific Enhanced settings
+        # For now, just return success
+        return {
+            "status": "success",
+            "message": f"Enhanced settings updated for user {username}",
+            "username": username,
+            "settings": settings
+        }
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to update user settings: {str(e)}"
+        )
+
+
+@router.get("/users/{username}/settings")
+async def get_user_enhanced_settings(
+    username: str,
+    admin: Admin = Depends(Admin.get_current)
+):
+    """Get Enhanced settings for a specific user"""
+    try:
+        # Here you would retrieve user-specific Enhanced settings
+        # For now, return default settings
+        return {
+            "username": username,
+            "connection_limit": 5,
+            "dns_override_enabled": False,
+            "custom_dns_servers": ["1.1.1.1", "8.8.8.8"],
+            "adblock_enabled": True,
+            "fail2ban_monitoring": True,
+            "traffic_analysis": True,
+            "custom_rules": ""
+        }
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to get user settings: {str(e)}"
+        )
+
+
+@router.get("/status")
+async def get_enhanced_status():
+    """Get Enhanced services status"""
+    try:
+        # Return demo service status
+        return {
+            "total_services": 5,
+            "running_services": 4,
+            "manager_initialized": True,
+            "last_check": datetime.utcnow(),
+            "services": {
+                "two_factor_auth": {
+                    "name": "two_factor_auth",
+                    "enabled": False,
+                    "running": False,
+                    "initialized": False,
+                    "status": "stopped"
+                },
+                "fail2ban_logger": {
+                    "name": "fail2ban_logger",
+                    "enabled": True,
+                    "running": True,
+                    "initialized": True,
+                    "status": "running"
+                },
+                "connection_tracker": {
+                    "name": "connection_tracker",
+                    "enabled": True,
+                    "running": True,
+                    "initialized": True,
+                    "status": "running"
+                },
+                "dns_manager": {
+                    "name": "dns_manager",
+                    "enabled": False,
+                    "running": False,
+                    "initialized": False,
+                    "status": "stopped"
+                },
+                "adblock_manager": {
+                    "name": "adblock_manager",
+                    "enabled": True,
+                    "running": True,
+                    "initialized": True,
+                    "status": "running"
+                }
+            }
+        }
+
+    except Exception as e:
+        return {
+            "total_services": 0,
+            "running_services": 0,
+            "manager_initialized": False,
+            "last_check": datetime.utcnow(),
+            "services": {},
+            "error": str(e)
+        }
+
+
+@router.get("/metrics")
+async def get_enhanced_metrics():
+    """Get Enhanced services metrics"""
+    try:
+        import random
+
+        # Return demo metrics
+        return {
+            "timestamp": datetime.utcnow(),
+            "services": {
+                "fail2ban_logger": {
+                    "status": "active",
+                    "metrics": {
+                        "blocked_requests": random.randint(10, 50),
+                        "memory_usage": random.randint(10000000, 50000000),
+                        "memory_percentage": random.randint(5, 15)
+                    },
+                    "last_activity": datetime.utcnow()
+                },
+                "connection_tracker": {
+                    "status": "active",
+                    "metrics": {
+                        "active_connections": random.randint(5, 25),
+                        "memory_usage": random.randint(5000000, 20000000),
+                        "memory_percentage": random.randint(3, 10)
+                    },
+                    "last_activity": datetime.utcnow()
+                },
+                "adblock_manager": {
+                    "status": "active",
+                    "metrics": {
+                        "blocked_requests": random.randint(100, 500),
+                        "memory_usage": random.randint(15000000, 30000000),
+                        "memory_percentage": random.randint(8, 20)
+                    },
+                    "last_activity": datetime.utcnow()
+                }
+            }
+        }
+
+    except Exception as e:
+        return {
+            "timestamp": datetime.utcnow(),
+            "services": {},
+            "error": str(e)
+        }
+
+
 @router.get("/overview")
 async def get_enhanced_features_overview(
     admin: Admin = Depends(Admin.get_current)

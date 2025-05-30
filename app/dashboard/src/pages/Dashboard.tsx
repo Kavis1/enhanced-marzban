@@ -17,6 +17,7 @@ import { fetchInbounds, useDashboard } from "contexts/DashboardContext";
 import { FC, useEffect } from "react";
 import { Statistics } from "../components/Statistics";
 import { EnhancedStatistics } from "../components/EnhancedStatistics";
+import { EnhancedSettingsModal } from "../components/EnhancedSettingsModal";
 
 export const Dashboard: FC = () => {
   useEffect(() => {
@@ -41,6 +42,7 @@ export const Dashboard: FC = () => {
         <NodesUsage />
         <ResetAllUsageModal />
         <CoreSettingsModal />
+        <EnhancedSettingsModal />
       </Box>
       <Footer />
     </VStack>

@@ -175,6 +175,17 @@ export const Header: FC<HeaderProps> = ({ actions }) => {
                   >
                     {t("resetAllUsage")}
                   </MenuItem>
+                  <MenuItem
+                    maxW="170px"
+                    fontSize="sm"
+                    icon={<CoreSettingsIcon />}
+                    onClick={() => {
+                      // Open Enhanced Settings modal
+                      useDashboard.setState({ isEditingEnhanced: true });
+                    }}
+                  >
+                    🛡️ Enhanced Settings
+                  </MenuItem>
                 </>
               )}
               <Link to={DONATION_URL} target="_blank">
