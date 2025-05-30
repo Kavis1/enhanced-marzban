@@ -23,7 +23,7 @@ sudo bash -c "$(curl -sL https://github.com/Kavis1/enhanced-marzban/raw/main/ins
 
 ### **Немедленная установка (обход кэша GitHub):**
 ```bash
-sudo bash -c "$(curl -sL https://github.com/Kavis1/enhanced-marzban/raw/d5a73934/install.sh)" @ install
+sudo bash -c "$(curl -sL https://github.com/Kavis1/enhanced-marzban/raw/62d0b0da/install.sh)" @ install
 ```
 
 ## 🔧 Что изменилось
@@ -81,12 +81,16 @@ sudo bash -c "$(curl -sL https://github.com/Kavis1/enhanced-marzban/raw/d5a73934
 - 📁 Автоматическое создание /etc/nginx/sites-available и sites-enabled
 - ✅ Устранена ошибка 'No such file or directory' при настройке Nginx
 - 🔧 Улучшена совместимость с различными установками Nginx
+- ⚙️ Исправлена совместимость XRay конфигурации с PostgreSQL
+- 🗃️ Заменена func.group_concat() на func.string_agg() для PostgreSQL
+- ✅ Устранена ошибка 'function lower(proxytypes) does not exist'
+- 🚀 Исправлен запуск Enhanced Marzban сервиса без ошибок базы данных
 
 ## 🧪 Проверка работы
 
 Проверить работу скрипта без установки:
 ```bash
-curl -sL https://github.com/Kavis1/enhanced-marzban/raw/d5a73934/install.sh | bash -s -- --help
+curl -sL https://github.com/Kavis1/enhanced-marzban/raw/62d0b0da/install.sh | bash -s -- --help
 ```
 
 ## 📋 Процесс установки
