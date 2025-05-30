@@ -658,8 +658,11 @@ sys.path.append('.')
 os.environ['SQLALCHEMY_DATABASE_URL'] = '$DATABASE_URL'
 
 from app.db import get_db
-from app.models.admin import Admin
-from app.utils.system import hash_password
+from app.db.models import Admin
+from passlib.context import CryptContext
+
+# Initialize password context
+pwd_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
 
 try:
     db = next(get_db())
@@ -668,14 +671,14 @@ try:
     existing_admin = db.query(Admin).filter(Admin.username == '$ADMIN_USERNAME').first()
     if existing_admin:
         # Update existing admin
-        existing_admin.hashed_password = hash_password('$ADMIN_PASSWORD')
+        existing_admin.hashed_password = pwd_context.hash('$ADMIN_PASSWORD')
         existing_admin.is_sudo = True
         print('✓ Admin user updated')
     else:
         # Create new admin
         admin = Admin(
             username='$ADMIN_USERNAME',
-            hashed_password=hash_password('$ADMIN_PASSWORD'),
+            hashed_password=pwd_context.hash('$ADMIN_PASSWORD'),
             is_sudo=True
         )
         db.add(admin)
