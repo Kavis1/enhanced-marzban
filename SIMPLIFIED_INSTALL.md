@@ -23,7 +23,7 @@ sudo bash -c "$(curl -sL https://github.com/Kavis1/enhanced-marzban/raw/main/ins
 
 ### **Немедленная установка (обход кэша GitHub):**
 ```bash
-sudo bash -c "$(curl -sL https://github.com/Kavis1/enhanced-marzban/raw/19438726/install.sh)" @ install
+sudo bash -c "$(curl -sL https://github.com/Kavis1/enhanced-marzban/raw/d8418212/install.sh)" @ install
 ```
 
 ## 🔧 Что изменилось
@@ -101,12 +101,16 @@ sudo bash -c "$(curl -sL https://github.com/Kavis1/enhanced-marzban/raw/19438726
 - ✅ Устранена ошибка 'NoneType' object has no attribute 'secret_key'
 - 🌐 Упрощена конфигурация Nginx для немедленного доступа
 - 📱 Панель доступна сразу после установки без SSL сертификатов
+- 🎨 Добавлен Enhanced брендинг в веб-панель
+- 📊 Добавлены Enhanced статистики безопасности в dashboard
+- ⚡ Заголовок изменен на 'Enhanced Marzban' с новым дизайном
+- 🛡️ Отображение заблокированных угроз, Fail2ban статистики, производительности
 
 ## 🧪 Проверка работы
 
 Проверить работу скрипта без установки:
 ```bash
-curl -sL https://github.com/Kavis1/enhanced-marzban/raw/19438726/install.sh | bash -s -- --help
+curl -sL https://github.com/Kavis1/enhanced-marzban/raw/d8418212/install.sh | bash -s -- --help
 ```
 
 ## 📋 Процесс установки
