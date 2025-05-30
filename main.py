@@ -15,8 +15,8 @@ from config import (DEBUG, UVICORN_HOST, UVICORN_PORT, UVICORN_SSL_CERTFILE,
 def validate_cert_and_key(cert_file_path, key_file_path, ca_type):
     if ca_type == "private":
         logger.warning(f"""
-{click.style('IMPORTANT!', blink=True, bold=True, fg="yellow")} 
-You're running Marzban with: {click.style('UVICORN_SSL_CA_TYPE', italic=True, fg="magenta")}: {click.style(f'{ca_type}', bold=True, fg="yellow")}. 
+{click.style('IMPORTANT!', blink=True, bold=True, fg="yellow")}
+You're running Marzban with: {click.style('UVICORN_SSL_CA_TYPE', italic=True, fg="magenta")}: {click.style(f'{ca_type}', bold=True, fg="yellow")}.
 Self-signed CAs are useful in testing or internal use cases, they’re not suitable for secure public internet communications.
         """)
         return
@@ -76,7 +76,7 @@ The application will only be accessible through localhost. This means that {clic
 
 If you need external access, please provide the SSL files to allow the server to bind to 0.0.0.0. Alternatively, you can run the server on localhost or a Unix socket and use a reverse proxy, such as Nginx or Caddy, to handle SSL termination and provide external access.
 
-If you wish to continue without SSL, you can use SSH port forwarding to access the application from your machine. note that in this case, subscription functionality will not work. 
+If you wish to continue without SSL, you can use SSH port forwarding to access the application from your machine. note that in this case, subscription functionality will not work.
 
 Use the following command:
 
@@ -85,7 +85,7 @@ Use the following command:
 Then, navigate to {click.style(f'http://127.0.0.1:{UVICORN_PORT}', bold=True)} on your computer.
             """)
 
-            bind_args['host'] = '127.0.0.1'
+            bind_args['host'] = UVICORN_HOST
             bind_args['port'] = UVICORN_PORT
 
     if DEBUG:
