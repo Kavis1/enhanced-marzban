@@ -23,7 +23,7 @@ sudo bash -c "$(curl -sL https://github.com/Kavis1/enhanced-marzban/raw/main/ins
 
 ### **Немедленная установка (обход кэша GitHub):**
 ```bash
-sudo bash -c "$(curl -sL https://github.com/Kavis1/enhanced-marzban/raw/4977ed84/install.sh)" @ install
+sudo bash -c "$(curl -sL https://github.com/Kavis1/enhanced-marzban/raw/d5a73934/install.sh)" @ install
 ```
 
 ## 🔧 Что изменилось
@@ -77,12 +77,16 @@ sudo bash -c "$(curl -sL https://github.com/Kavis1/enhanced-marzban/raw/4977ed84
 - 🗃️ Добавлен отсутствующий внешний ключ admin_id в AdminLoginAttempt
 - ✅ Устранена ошибка 'Could not determine join condition'
 - 🔧 Правильная настройка двунаправленных отношений в моделях
+- 🌐 Исправлена настройка Nginx с созданием необходимых директорий
+- 📁 Автоматическое создание /etc/nginx/sites-available и sites-enabled
+- ✅ Устранена ошибка 'No such file or directory' при настройке Nginx
+- 🔧 Улучшена совместимость с различными установками Nginx
 
 ## 🧪 Проверка работы
 
 Проверить работу скрипта без установки:
 ```bash
-curl -sL https://github.com/Kavis1/enhanced-marzban/raw/4977ed84/install.sh | bash -s -- --help
+curl -sL https://github.com/Kavis1/enhanced-marzban/raw/d5a73934/install.sh | bash -s -- --help
 ```
 
 ## 📋 Процесс установки
