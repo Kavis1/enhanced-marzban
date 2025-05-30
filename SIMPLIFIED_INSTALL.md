@@ -23,7 +23,7 @@ sudo bash -c "$(curl -sL https://github.com/Kavis1/enhanced-marzban/raw/main/ins
 
 ### **Немедленная установка (обход кэша GitHub):**
 ```bash
-sudo bash -c "$(curl -sL https://github.com/Kavis1/enhanced-marzban/raw/c19b12b7/install.sh)" @ install
+sudo bash -c "$(curl -sL https://github.com/Kavis1/enhanced-marzban/raw/d3436295/install.sh)" @ install
 ```
 
 ## 🔧 Что изменилось
@@ -89,12 +89,16 @@ sudo bash -c "$(curl -sL https://github.com/Kavis1/enhanced-marzban/raw/c19b12b7
 - 🔧 Убрано JSON поле из GROUP BY для избежания ошибки оператора равенства
 - ✅ Устранена ошибка 'could not identify an equality operator for type json'
 - 🎯 Полная совместимость XRay конфигурации с PostgreSQL
+- 🔗 Исправлены контекстные менеджеры базы данных в Enhanced сервисах
+- 🗃️ Устранены ошибки '__enter__' в DNSManager, AdBlockManager, ConnectionTracker
+- 🌐 Исправлен внешний доступ к панели через Nginx reverse proxy
+- ✅ Enhanced Marzban теперь доступен с внешних IP адресов
 
 ## 🧪 Проверка работы
 
 Проверить работу скрипта без установки:
 ```bash
-curl -sL https://github.com/Kavis1/enhanced-marzban/raw/c19b12b7/install.sh | bash -s -- --help
+curl -sL https://github.com/Kavis1/enhanced-marzban/raw/d3436295/install.sh | bash -s -- --help
 ```
 
 ## 📋 Процесс установки
