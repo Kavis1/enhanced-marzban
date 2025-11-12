@@ -382,14 +382,13 @@ def delete_expired_users(
 
     crud.remove_users(db, expired_users)
 
-    for removed_user in removed_users:
-        logger.info(f'User "{removed_user}" deleted')
+    for user in expired_users:
+        logger.info(f'User "{user.username}" deleted')
+        bg.add_task(xray.operations.remove_user, dbuser=user)
         bg.add_task(
             report.user_deleted,
-            username=removed_user,
-            user_admin=next(
-                (u.admin for u in expired_users if u.username == removed_user), None
-            ),
+            username=user.username,
+            user_admin=user.admin,
             by=admin,
         )
 

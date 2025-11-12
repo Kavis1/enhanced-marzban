@@ -44,7 +44,8 @@ class Fail2banLogger(ConfigurableService):
         self.max_violations = self.get_config('max_violations', FAIL2BAN_MAX_VIOLATIONS)
         
         # Ensure log directory exists
-        self._ensure_log_directory()
+        if self.enabled:
+            self._ensure_log_directory()
     
     def initialize(self) -> bool:
         """Initialize the fail2ban logger service"""

@@ -50,7 +50,7 @@ def upgrade():
         sa.Column('secret_key', sa.String(length=32), nullable=False),
         sa.Column('is_enabled', sa.Boolean(), nullable=True),
         sa.Column('backup_codes', sa.Text(), nullable=True),
-        sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=True),
+        sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=True),
         sa.Column('last_used', sa.DateTime(timezone=True), nullable=True),
         sa.ForeignKeyConstraint(['admin_id'], ['admins.id'], ),
         sa.PrimaryKeyConstraint('id'),
@@ -65,7 +65,7 @@ def upgrade():
         sa.Column('violation_type', sa.String(length=50), nullable=False),
         sa.Column('ip_address', sa.String(length=45), nullable=False),
         sa.Column('details', sa.Text(), nullable=True),
-        sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=True),
+        sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=True),
         sa.Column('resolved', sa.Boolean(), nullable=True),
         sa.Column('resolved_at', sa.DateTime(timezone=True), nullable=True),
         sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
@@ -82,8 +82,8 @@ def upgrade():
         sa.Column('connection_id', sa.String(length=100), nullable=False),
         sa.Column('protocol', sa.String(length=20), nullable=False),
         sa.Column('inbound_tag', sa.String(length=50), nullable=False),
-        sa.Column('connected_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=True),
-        sa.Column('last_activity', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=True),
+        sa.Column('connected_at', sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=True),
+        sa.Column('last_activity', sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=True),
         sa.Column('bytes_sent', sa.Integer(), nullable=True),
         sa.Column('bytes_received', sa.Integer(), nullable=True),
         sa.Column('is_active', sa.Boolean(), nullable=True),
@@ -107,7 +107,7 @@ def upgrade():
         sa.Column('target_ip', sa.String(length=45), nullable=False),
         sa.Column('priority', sa.Integer(), nullable=True),
         sa.Column('is_enabled', sa.Boolean(), nullable=True),
-        sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=True),
+        sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=True),
         sa.Column('updated_at', sa.DateTime(timezone=True), nullable=True),
         sa.Column('description', sa.String(length=500), nullable=True),
         sa.PrimaryKeyConstraint('id')
@@ -124,7 +124,7 @@ def upgrade():
         sa.Column('target_ip', sa.String(length=45), nullable=False),
         sa.Column('priority', sa.Integer(), nullable=True),
         sa.Column('is_enabled', sa.Boolean(), nullable=True),
-        sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=True),
+        sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=True),
         sa.Column('updated_at', sa.DateTime(timezone=True), nullable=True),
         sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
         sa.PrimaryKeyConstraint('id'),
@@ -140,7 +140,7 @@ def upgrade():
         sa.Column('query_type', sa.String(length=10), nullable=False),
         sa.Column('response', sa.Text(), nullable=False),
         sa.Column('ttl', sa.Integer(), nullable=True),
-        sa.Column('cached_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=True),
+        sa.Column('cached_at', sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=True),
         sa.Column('expires_at', sa.DateTime(timezone=True), nullable=False),
         sa.Column('hit_count', sa.Integer(), nullable=True),
         sa.PrimaryKeyConstraint('id')
@@ -157,7 +157,7 @@ def upgrade():
         sa.Column('is_enabled', sa.Boolean(), nullable=True),
         sa.Column('last_updated', sa.DateTime(timezone=True), nullable=True),
         sa.Column('domain_count', sa.Integer(), nullable=True),
-        sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=True),
+        sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=True),
         sa.PrimaryKeyConstraint('id'),
         sa.UniqueConstraint('name')
     )
@@ -169,7 +169,7 @@ def upgrade():
         sa.Column('domain', sa.String(length=255), nullable=False),
         sa.Column('list_id', sa.Integer(), nullable=False),
         sa.Column('is_active', sa.Boolean(), nullable=True),
-        sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=True),
+        sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=True),
         sa.ForeignKeyConstraint(['list_id'], ['adblock_lists.id'], ),
         sa.PrimaryKeyConstraint('id')
     )
@@ -183,12 +183,12 @@ def upgrade():
         sa.Column('service_name', sa.String(length=50), nullable=False),
         sa.Column('is_enabled', sa.Boolean(), nullable=True),
         sa.Column('is_running', sa.Boolean(), nullable=True),
-        sa.Column('last_check', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=True),
+        sa.Column('last_check', sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=True),
         sa.Column('last_restart', sa.DateTime(timezone=True), nullable=True),
         sa.Column('error_count', sa.Integer(), nullable=True),
         sa.Column('last_error', sa.Text(), nullable=True),
         sa.Column('configuration', sa.Text(), nullable=True),
-        sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=True),
+        sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=True),
         sa.Column('updated_at', sa.DateTime(timezone=True), nullable=True),
         sa.PrimaryKeyConstraint('id'),
         sa.UniqueConstraint('service_name')
@@ -204,7 +204,7 @@ def upgrade():
         sa.Column('details', sa.Text(), nullable=True),
         sa.Column('user_id', sa.Integer(), nullable=True),
         sa.Column('ip_address', sa.String(length=45), nullable=True),
-        sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=True),
+        sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=True),
         sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
         sa.PrimaryKeyConstraint('id')
     )
@@ -215,13 +215,15 @@ def upgrade():
     # Create admin_login_attempts table
     op.create_table('admin_login_attempts',
         sa.Column('id', sa.Integer(), nullable=False),
+        sa.Column('admin_id', sa.Integer(), nullable=True),
         sa.Column('username', sa.String(length=100), nullable=False),
         sa.Column('ip_address', sa.String(length=45), nullable=False),
         sa.Column('user_agent', sa.Text(), nullable=True),
         sa.Column('success', sa.Boolean(), nullable=True),
         sa.Column('failure_reason', sa.String(length=100), nullable=True),
         sa.Column('two_factor_used', sa.Boolean(), nullable=True),
-        sa.Column('attempted_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=True),
+        sa.Column('attempted_at', sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=True),
+        sa.ForeignKeyConstraint(['admin_id'], ['admins.id'], ),
         sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_admin_login_attempts_id'), 'admin_login_attempts', ['id'], unique=False)
@@ -234,8 +236,8 @@ def upgrade():
         sa.Column('session_token', sa.String(length=255), nullable=False),
         sa.Column('ip_address', sa.String(length=45), nullable=False),
         sa.Column('user_agent', sa.Text(), nullable=True),
-        sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=True),
-        sa.Column('last_activity', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=True),
+        sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=True),
+        sa.Column('last_activity', sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=True),
         sa.Column('expires_at', sa.DateTime(timezone=True), nullable=False),
         sa.Column('is_active', sa.Boolean(), nullable=True),
         sa.Column('two_factor_verified', sa.Boolean(), nullable=True),
@@ -253,7 +255,7 @@ def upgrade():
         sa.Column('metric_value', sa.Float(), nullable=False),
         sa.Column('metric_unit', sa.String(length=20), nullable=True),
         sa.Column('node_id', sa.Integer(), nullable=True),
-        sa.Column('recorded_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=True),
+        sa.Column('recorded_at', sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=True),
         sa.Column('details', sa.Text(), nullable=True),
         sa.ForeignKeyConstraint(['node_id'], ['nodes.id'], ),
         sa.PrimaryKeyConstraint('id')
