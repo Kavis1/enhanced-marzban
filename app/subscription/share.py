@@ -44,10 +44,14 @@ STATUS_TEXTS = {
 }
 
 
-def generate_v2ray_links(proxies: dict, inbounds: dict, extra_data: dict, reverse: bool) -> list:
+def generate_v2ray_links(
+        proxies: dict, inbounds: dict, extra_data: dict, reverse: bool, nodes: list = None
+) -> list:
     format_variables = setup_format_variables(extra_data)
     conf = V2rayShareLink()
-    return process_inbounds_and_tags(inbounds, proxies, format_variables, conf=conf, reverse=reverse)
+    return process_inbounds_and_tags(
+        inbounds, proxies, format_variables, conf=conf, reverse=reverse, nodes=nodes
+    )
 
 
 def generate_clash_subscription(
@@ -87,13 +91,13 @@ def generate_outline_subscription(
 
 
 def generate_v2ray_json_subscription(
-        proxies: dict, inbounds: dict, extra_data: dict, reverse: bool,
+        proxies: dict, inbounds: dict, extra_data: dict, reverse: bool, nodes: list = None
 ) -> str:
     conf = V2rayJsonConfig()
 
     format_variables = setup_format_variables(extra_data)
     return process_inbounds_and_tags(
-        inbounds, proxies, format_variables, conf=conf, reverse=reverse
+        inbounds, proxies, format_variables, conf=conf, reverse=reverse, nodes=nodes
     )
 
 
@@ -108,6 +112,7 @@ def generate_subscription(
         "inbounds": user.inbounds,
         "extra_data": user.__dict__,
         "reverse": reverse,
+        "nodes": user.nodes,
     }
 
     if config_format == "v2ray":
@@ -242,6 +247,7 @@ def process_inbounds_and_tags(
             OutlineConfiguration
         ],
         reverse=False,
+        nodes: list = None,
 ) -> Union[List, str]:
     _inbounds = []
     for protocol, tags in inbounds.items():
@@ -317,7 +323,8 @@ def process_inbounds_and_tags(
                     remark=host["remark"].format_map(format_variables),
                     address=address.format_map(format_variables),
                     inbound=host_inbound,
-                    settings=settings.model_dump()
+                    settings=settings.model_dump(),
+                    nodes=nodes,
                 )
 
     return conf.render(reverse=reverse)

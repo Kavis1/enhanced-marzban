@@ -983,7 +983,7 @@ class V2rayJsonConfig(str):
                                           tls_settings=tls_settings,
                                           sockopt=sockopt)
 
-    def add(self, remark: str, address: str, inbound: dict, settings: dict):
+    def add(self, remark: str, address: str, inbound: dict, settings: dict, nodes: list = None):
 
         net = inbound['network']
         protocol = inbound['protocol']
@@ -1037,7 +1037,46 @@ class V2rayJsonConfig(str):
                                                            password=settings['password'],
                                                            method=settings['method'])
 
-        outbounds = [outbound]
+        if nodes:
+            outbounds = []
+            for i, node in enumerate(nodes):
+                outbounds.append({
+                    "sendThrough": "0.0.0.0",
+                    "protocol": "vmess",
+                    "settings": {
+                        "vnext": [
+                            {
+                                "address": node["address"],
+                                "port": node["port"],
+                                "users": [
+                                    {
+                                        "id": settings["id"],
+                                        "alterId": 0,
+                                        "security": "auto"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    "tag": f"proxy-{i}",
+                    "streamSettings": {
+                        "network": "ws",
+                        "security": "none",
+                        "wsSettings": {
+                            "path": f"/{settings['id']}",
+                            "headers": {
+                                "Host": node["address"]
+                            }
+                        }
+                    }
+                })
+            for i in range(len(outbounds) - 1):
+                outbounds[i]["proxySettings"] = {"tag": outbounds[i + 1]["tag"]}
+            outbounds[-1]["proxySettings"] = {"tag": "direct"}
+            outbound["tag"] = "proxy"
+            outbounds.insert(0, outbound)
+        else:
+            outbounds = [outbound]
         dialer_proxy = ''
         extra_outbound = self.make_dialer_outbound(fragment, noise)
         if extra_outbound:

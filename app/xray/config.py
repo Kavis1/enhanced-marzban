@@ -364,38 +364,24 @@ class XRayConfig(dict):
         with GetDB() as db:
             # Use string_agg for PostgreSQL compatibility instead of group_concat
             # Remove JSON field from GROUP BY to avoid PostgreSQL equality operator error
-            query = db.query(
-                db_models.User.id,
-                db_models.User.username,
-                db_models.Proxy.type.label('type'),
-                db_models.Proxy.settings,
-                func.string_agg(db_models.excluded_inbounds_association.c.inbound_tag, ',').label('excluded_inbound_tags')
-            ).join(
-                db_models.Proxy, db_models.User.id == db_models.Proxy.user_id
-            ).outerjoin(
-                db_models.excluded_inbounds_association,
-                db_models.Proxy.id == db_models.excluded_inbounds_association.c.proxy_id
-            ).filter(
+            query = db.query(db_models.User).filter(
                 db_models.User.status.in_([UserStatus.active, UserStatus.on_hold])
-            ).group_by(
-                db_models.Proxy.type,
-                db_models.User.id,
-                db_models.User.username,
-                db_models.Proxy.id  # Use proxy.id instead of settings for grouping
             )
-            result = query.all()
+            users = query.all()
 
             grouped_data = defaultdict(list)
 
-            for row in result:
-                # Convert enum to string for compatibility
-                proxy_type = row.type.value if hasattr(row.type, 'value') else str(row.type).lower()
-                grouped_data[proxy_type].append((
-                    row.id,
-                    row.username,
-                    row.settings,
-                    [i for i in row.excluded_inbound_tags.split(',') if i] if row.excluded_inbound_tags else None
-                ))
+            for user in users:
+                for proxy in user.proxies:
+                    proxy_type = proxy.type.value if hasattr(proxy.type, 'value') else str(proxy.type).lower()
+                    excluded_inbound_tags = [i.tag for i in proxy.excluded_inbounds]
+                    grouped_data[proxy_type].append((
+                        user.id,
+                        user.username,
+                        proxy.settings,
+                        excluded_inbound_tags,
+                        [{"id": n.id, "address": n.address, "port": n.port} for n in user.nodes],
+                    ))
 
             for proxy_type, rows in grouped_data.items():
 
@@ -407,10 +393,52 @@ class XRayConfig(dict):
                     clients = config.get_inbound(inbound['tag'])['settings']['clients']
 
                     for row in rows:
-                        user_id, username, settings, excluded_inbound_tags = row
+                        user_id, username, settings, excluded_inbound_tags, nodes = row
 
                         if excluded_inbound_tags and inbound['tag'] in excluded_inbound_tags:
                             continue
+
+                        if nodes:
+                            tag_prefix = f"{user_id}-{username}-{inbound['tag']}"
+                            outbounds = []
+                            for i, node in enumerate(nodes):
+                                outbounds.append({
+                                    "sendThrough": "0.0.0.0",
+                                    "protocol": "vmess",
+                                    "settings": {
+                                        "vnext": [
+                                            {
+                                                "address": node["address"],
+                                                "port": node["port"],
+                                                "users": [
+                                                    {
+                                                        "id": settings["id"],
+                                                        "alterId": 0,
+                                                        "email": f"{user_id}.{username}",
+                                                        "security": "auto"
+                                                    }
+                                                ]
+                                            }
+                                        ]
+                                    },
+                                    "tag": f"{tag_prefix}-{i}",
+                                    "streamSettings": {
+                                        "network": "ws",
+                                        "security": "none",
+                                        "wsSettings": {
+                                            "path": f"/{settings['id']}",
+                                            "headers": {
+                                                "Host": node["address"]
+                                            }
+                                        }
+                                    }
+                                })
+
+                            for i in range(len(outbounds) - 1):
+                                outbounds[i]["proxySettings"] = {"tag": outbounds[i + 1]["tag"]}
+                            outbounds[-1]["proxySettings"] = {"tag": "freedom"}
+
+                            config["outbounds"].extend(outbounds)
 
                         client = {
                             "email": f"{user_id}.{username}",
@@ -431,7 +459,17 @@ class XRayConfig(dict):
                         ):
                             del client['flow']
 
+                        if nodes:
+                            client['outboundTag'] = f"{tag_prefix}-0"
+
                         clients.append(client)
+
+        if not any(outbound["tag"] == "freedom" for outbound in config["outbounds"]):
+            config["outbounds"].append({
+                "protocol": "freedom",
+                "settings": {},
+                "tag": "freedom"
+            })
 
         if DEBUG:
             with open('generated_config-debug.json', 'w') as f:
