@@ -338,5 +338,16 @@ class ConnectionTracker(ScheduledService):
         }
 
 
+    def health_check(self) -> bool:
+        """Perform health check for connection tracker"""
+        try:
+            # Check database connectivity
+            with self.get_db_session() as db:
+                db.query(User).first()
+            return True
+        except Exception as e:
+            self.log_error(f"Connection tracker health check failed: {str(e)}")
+            return False
+
 # Global instance
 connection_tracker = ConnectionTracker()

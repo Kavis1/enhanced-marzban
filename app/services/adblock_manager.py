@@ -427,5 +427,24 @@ class AdBlockManager(ScheduledService):
             return {'enabled': self.enabled, 'error': str(e)}
 
 
+    def health_check(self) -> bool:
+        """Perform health check for adblock manager"""
+        try:
+            # Check database connectivity
+            with self.get_db_session() as db:
+                db.query(AdBlockList).first()
+
+            # Check if default adblock lists are accessible
+            for list_key, list_info in self.DEFAULT_LISTS.items():
+                if list_key in self.default_lists:
+                    response = requests.head(list_info['url'], timeout=10)
+                    if response.status_code != 200:
+                        self.log_warning(f"Adblock list {list_info['name']} is not accessible (status code: {response.status_code})")
+                        return False
+            return True
+        except Exception as e:
+            self.log_error(f"Adblock manager health check failed: {str(e)}")
+            return False
+
 # Global instance
 adblock_manager = AdBlockManager()

@@ -287,5 +287,30 @@ class TwoFactorAuthService(ConfigurableService):
             return []
 
 
+    def get_statistics(self) -> dict:
+        """Get 2FA usage statistics"""
+        try:
+            with self.get_db_session() as db:
+                from app.db.models import Admin
+
+                total_admins = db.query(Admin).count()
+                enabled_2fa = db.query(AdminTwoFactor).filter(
+                    AdminTwoFactor.is_enabled == True
+                ).count()
+
+                return {
+                    "total_admins": total_admins,
+                    "enabled_2fa": enabled_2fa,
+                    "adoption_rate": round((enabled_2fa / total_admins * 100), 2) if total_admins > 0 else 0
+                }
+        except Exception as e:
+            self.log_error(f"Failed to get 2FA statistics: {str(e)}")
+            return {
+                "total_admins": 0,
+                "enabled_2fa": 0,
+                "adoption_rate": 0,
+                "error": str(e)
+            }
+
 # Global instance
 two_factor_service = TwoFactorAuthService()
