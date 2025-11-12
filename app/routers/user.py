@@ -22,6 +22,45 @@ from app.utils import report, responses
 router = APIRouter(tags=["User"], prefix="/api", responses={401: responses._401})
 
 
+@router.post("/user/{username}/nodes", response_model=UserResponse)
+def set_user_nodes(
+    username: str,
+    nodes: List[int] = Query(None),
+    admin: Admin = Depends(Admin.get_current),
+    db: Session = Depends(get_db),
+):
+    """
+    Set the node chain for a user.
+    """
+    if not admin.is_sudo:
+        raise HTTPException(
+            status_code=403,
+            detail="You don't have permission to perform this action.",
+        )
+
+    user = db.query(crud.User).filter(crud.User.username == username).first()
+    if not user:
+        raise HTTPException(
+            status_code=404,
+            detail="User not found.",
+        )
+
+    user.nodes = []
+    for i, node_id in enumerate(nodes):
+        node = db.query(crud.Node).filter(crud.Node.id == node_id).first()
+        if not node:
+            raise HTTPException(
+                status_code=404,
+                detail=f"Node with id {node_id} not found.",
+            )
+        user.nodes.append(node)
+
+    db.commit()
+    db.refresh(user)
+
+    return user
+
+
 @router.post("/user", response_model=UserResponse, responses={400: responses._400, 409: responses._409})
 def add_user(
     new_user: UserCreate,
@@ -58,6 +97,17 @@ def add_user(
         dbuser = crud.create_user(
             db, new_user, admin=crud.get_admin(db, admin.username)
         )
+        if new_user.nodes:
+            for i, node_id in enumerate(new_user.nodes):
+                node = db.query(crud.Node).filter(crud.Node.id == node_id).first()
+                if not node:
+                    raise HTTPException(
+                        status_code=404,
+                        detail=f"Node with id {node_id} not found.",
+                    )
+                dbuser.nodes.append(node)
+            db.commit()
+            db.refresh(dbuser)
     except IntegrityError:
         db.rollback()
         raise HTTPException(status_code=409, detail="User already exists")
@@ -110,6 +160,18 @@ def modify_user(
 
     old_status = dbuser.status
     dbuser = crud.update_user(db, dbuser, modified_user)
+    if modified_user.nodes is not None:
+        dbuser.nodes = []
+        for i, node_id in enumerate(modified_user.nodes):
+            node = db.query(crud.Node).filter(crud.Node.id == node_id).first()
+            if not node:
+                raise HTTPException(
+                    status_code=404,
+                    detail=f"Node with id {node_id} not found.",
+                )
+            dbuser.nodes.append(node)
+        db.commit()
+        db.refresh(dbuser)
     user = UserResponse.model_validate(dbuser)
 
     if user.status in [UserStatus.active, UserStatus.on_hold]:

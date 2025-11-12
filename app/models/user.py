@@ -58,6 +58,7 @@ class NextPlanModel(BaseModel):
 
 class User(BaseModel):
     proxies: Dict[ProxyTypes, ProxySettings] = {}
+    nodes: Optional[List[int]] = []
     expire: Optional[int] = Field(None, nullable=True)
     data_limit: Optional[int] = Field(
         ge=0, default=None, description="data_limit can be 0 or greater"
@@ -288,6 +289,7 @@ class UserResponse(User):
     links: List[str] = []
     subscription_url: str = ""
     proxies: dict
+    nodes: Optional[List[dict]] = None
     excluded_inbounds: Dict[ProxyTypes, List[str]] = {}
 
     admin: Optional[Admin] = None
@@ -297,7 +299,11 @@ class UserResponse(User):
     def validate_links(self):
         if not self.links:
             self.links = generate_v2ray_links(
-                self.proxies, self.inbounds, extra_data=self.model_dump(), reverse=False,
+                self.proxies,
+                self.inbounds,
+                nodes=self.nodes,
+                extra_data=self.model_dump(),
+                reverse=False,
             )
         return self
 

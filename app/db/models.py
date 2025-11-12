@@ -70,6 +70,11 @@ class User(Base):
     id = Column(Integer, primary_key=True)
     username = Column(String(34), unique=True, index=True)
     proxies = relationship("Proxy", back_populates="user", cascade="all, delete-orphan")
+    nodes = relationship(
+        "Node",
+        secondary="user_nodes",
+        order_by="user_nodes.c.rank",
+    )
     status = Column(Enum(UserStatus), nullable=False, default=UserStatus.active)
     used_traffic = Column(BigInteger, default=0)
     node_usages = relationship("NodeUserUsage", back_populates="user", cascade="all, delete-orphan")
@@ -163,6 +168,14 @@ class User(Base):
 
         return _
 
+
+user_nodes = Table(
+    "user_nodes",
+    Base.metadata,
+    Column("user_id", Integer, ForeignKey("users.id"), primary_key=True),
+    Column("node_id", Integer, ForeignKey("nodes.id"), primary_key=True),
+    Column("rank", Integer, primary_key=True, autoincrement=False),
+)
 
 excluded_inbounds_association = Table(
     "exclude_inbounds_association",
