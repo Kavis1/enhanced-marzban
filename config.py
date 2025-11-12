@@ -155,7 +155,7 @@ TWO_FACTOR_ISSUER_NAME = config("TWO_FACTOR_ISSUER_NAME", default="Enhanced Marz
 TWO_FACTOR_BACKUP_CODES_COUNT = config("TWO_FACTOR_BACKUP_CODES_COUNT", cast=int, default=10)
 
 # Fail2ban Integration
-FAIL2BAN_ENABLED = config("FAIL2BAN_ENABLED", cast=bool, default=True)
+FAIL2BAN_ENABLED = config("FAIL2BAN_ENABLED", cast=bool, default=False)
 FAIL2BAN_LOG_PATH = config("FAIL2BAN_LOG_PATH", default="/var/log/marzban/fail2ban.log")
 FAIL2BAN_MAX_VIOLATIONS = config("FAIL2BAN_MAX_VIOLATIONS", cast=int, default=3)
 TORRENT_DETECTION_ENABLED = config("TORRENT_DETECTION_ENABLED", cast=bool, default=True)
