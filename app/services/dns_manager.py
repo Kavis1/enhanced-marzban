@@ -362,5 +362,25 @@ class DNSManager(ScheduledService):
         return dns_config
 
 
+    def get_statistics(self) -> dict:
+        """Get DNS manager statistics"""
+        return {
+            "global_rules_count": len(self.global_rules_cache),
+            "user_rules_count": sum(len(rules) for rules in self.user_rules_cache.values()),
+            "cache_entries": len(self.dns_cache),
+            "user_cache_entries": len(self.user_dns_cache)
+        }
+
+    def health_check(self) -> bool:
+        """Perform health check for DNS manager"""
+        try:
+            # Check database connectivity
+            with self.get_db_session() as db:
+                db.query(DNSRule).first()
+            return True
+        except Exception as e:
+            self.log_error(f"DNS manager health check failed: {str(e)}")
+            return False
+
 # Global instance
 dns_manager = DNSManager()

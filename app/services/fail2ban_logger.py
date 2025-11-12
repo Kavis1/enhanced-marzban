@@ -327,5 +327,15 @@ failregex = ^\\[.*\\] MARZBAN_VIOLATION: TYPE=(?:SUSPICIOUS_.*|CONNECTION_LIMIT)
         return filter_config
 
 
+    def health_check(self) -> bool:
+        """Perform health check for fail2ban logger"""
+        try:
+            # Check if log file is writable
+            self._test_log_writing()
+            return True
+        except Exception as e:
+            self.log_error(f"Fail2ban logger health check failed: {str(e)}")
+            return False
+
 # Global instance
 fail2ban_logger = Fail2banLogger()
