@@ -215,7 +215,7 @@ show_help() {
     echo "  $0 install --silent"
     echo
     echo "One-line installation:"
-    echo "  sudo bash -c \"\$(curl -sL https://github.com/Kavis1/enhanced-marzban/raw/main/install.sh)\" @ install"
+    echo "  sudo bash -c \"\$(curl -sL https://github.com/Kavis1/enhanced-marzban/raw/main/scripts/install-enhanced-marzban.sh)\" @ install"
 }
 
 create_backup() {
@@ -296,12 +296,10 @@ install_dependencies() {
     print_progress 4 10 "Installing PostgreSQL..."
     case "$DETECTED_OS" in
         ubuntu|debian)
-            apt-get install -y -qq postgresql postgresql-contrib postgresql-client \
-                libpq-dev python3-dev build-essential
+            apt-get install -y -qq postgresql postgresql-contrib postgresql-client
             ;;
         centos|rhel)
-            yum install -y -q postgresql-server postgresql-contrib postgresql-devel \
-                python3-devel gcc gcc-c++ make
+            yum install -y -q postgresql-server postgresql-contrib
             postgresql-setup initdb
             ;;
     esac
@@ -420,72 +418,17 @@ install_python_dependencies() {
     print_progress 3 5 "Installing Enhanced Marzban dependencies..."
     python3 -m pip install -r requirements.txt
 
-    # Install additional security and database packages
-    print_progress 4 5 "Installing security and database packages..."
-    python3 -m pip install cryptography bcrypt psycopg2-binary
+    # Install additional security packages
+    print_progress 4 5 "Installing security packages..."
+    python3 -m pip install cryptography bcrypt
 
     print_progress 5 5 "Python dependencies installation completed"
     print_success "All Python dependencies installed successfully"
     log_action "Python dependencies installed"
 }
 
-build_frontend() {
-    print_step 7 16 "Building Enhanced frontend dashboard"
-
-    cd "$MARZBAN_DIR"
-
-    # Check if dashboard directory exists
-    if [ ! -d "app/dashboard" ]; then
-        print_error "Dashboard source code not found"
-        return 1
-    fi
-
-    # Install Node.js and npm if not present
-    print_progress 1 5 "Installing Node.js and npm..."
-    if ! command -v node >/dev/null 2>&1; then
-        curl -fsSL https://deb.nodesource.com/setup_18.x | bash -
-        apt-get install -y nodejs
-    fi
-
-    # Verify Node.js installation
-    if ! command -v node >/dev/null 2>&1 || ! command -v npm >/dev/null 2>&1; then
-        print_error "Failed to install Node.js and npm"
-        return 1
-    fi
-
-    print_progress 2 5 "Installing frontend dependencies..."
-    cd app/dashboard
-
-    # Install dependencies
-    npm install --silent --no-progress 2>/dev/null || {
-        print_warning "npm install failed, trying with --legacy-peer-deps"
-        npm install --legacy-peer-deps --silent --no-progress 2>/dev/null
-    }
-
-    print_progress 3 5 "Building Enhanced dashboard..."
-    # Build the dashboard with correct output directory
-    VITE_BASE_API=/api/ npm run build -- --outDir build --assetsDir statics 2>/dev/null || {
-        print_error "Failed to build dashboard"
-        return 1
-    }
-
-    print_progress 4 5 "Setting up built files..."
-    # Ensure build directory exists and copy index.html to 404.html
-    if [ -d "build" ]; then
-        cp build/index.html build/404.html 2>/dev/null || true
-        print_success "Enhanced dashboard built successfully"
-    else
-        print_error "Build output not found"
-        return 1
-    fi
-
-    print_progress 5 5 "Frontend build completed"
-    cd "$MARZBAN_DIR"
-    log_action "Enhanced frontend dashboard built"
-}
-
 generate_secrets() {
-    print_step 8 16 "Generating secure credentials"
+    print_step 7 14 "Generating secure credentials"
 
     # Generate admin password
     ADMIN_PASSWORD=$(generate_password 16)
@@ -508,135 +451,68 @@ generate_secrets() {
 }
 
 setup_database() {
-    print_step 9 16 "Setting up PostgreSQL database"
+    print_step 8 14 "Setting up PostgreSQL database"
 
     # Start PostgreSQL service
     systemctl start postgresql
     systemctl enable postgresql
-    sleep 3
 
-    print_progress 1 4 "Setting up PostgreSQL authentication..."
-
-    # Configure PostgreSQL to use trust authentication temporarily for setup
-    local pg_version=$(ls /etc/postgresql/ 2>/dev/null | head -1)
-    if [ -z "$pg_version" ]; then
-        pg_version="14"  # Default fallback
-    fi
-
-    local pg_config_dir="/etc/postgresql/$pg_version/main"
-    local pg_hba_conf="$pg_config_dir/pg_hba.conf"
-
-    # Alternative paths for different distributions
-    if [ ! -f "$pg_hba_conf" ]; then
-        pg_config_dir="/var/lib/pgsql/data"
-        pg_hba_conf="$pg_config_dir/pg_hba.conf"
-    fi
-    if [ ! -f "$pg_hba_conf" ]; then
-        pg_config_dir="/etc/postgresql"
-        pg_hba_conf="$pg_config_dir/pg_hba.conf"
-    fi
-
-    print_status "PostgreSQL config: $pg_hba_conf"
-
-    if [ -f "$pg_hba_conf" ]; then
-        # Backup original configuration
-        cp "$pg_hba_conf" "$pg_hba_conf.original" 2>/dev/null || true
-
-        # Create a temporary configuration with trust authentication
-        cat > "$pg_hba_conf" << EOF
-# Temporary configuration for Enhanced Marzban setup
-local   all             postgres                                trust
-local   all             all                                     trust
-host    all             all             127.0.0.1/32            trust
-host    all             all             ::1/128                 trust
-EOF
-
-        # Restart PostgreSQL with new configuration
-        systemctl restart postgresql
-        sleep 3
-        print_status "Configured temporary trust authentication"
-    else
-        print_error "PostgreSQL configuration file not found"
-        exit 1
-    fi
-
-    print_progress 2 4 "Creating database and user..."
-
-    # Now create database and user without password prompts
-    sudo -u postgres createdb enhanced_marzban 2>/dev/null || true
-    sudo -u postgres createuser marzban 2>/dev/null || true
-    sudo -u postgres psql -c "ALTER USER marzban WITH SUPERUSER;" 2>/dev/null || true
-    sudo -u postgres psql -c "ALTER USER marzban WITH PASSWORD '$DATABASE_PASSWORD';" 2>/dev/null || true
+    # Create database and user
+    print_progress 1 4 "Creating database and user..."
+    sudo -u postgres psql -c "CREATE DATABASE enhanced_marzban;" 2>/dev/null || true
+    sudo -u postgres psql -c "CREATE USER marzban WITH PASSWORD '$DATABASE_PASSWORD';" 2>/dev/null || true
     sudo -u postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE enhanced_marzban TO marzban;" 2>/dev/null || true
+    sudo -u postgres psql -c "ALTER USER marzban CREATEDB;" 2>/dev/null || true
+
+    # Configure PostgreSQL for local connections
+    print_progress 2 4 "Configuring PostgreSQL..."
+    local pg_version=$(sudo -u postgres psql -t -c "SELECT version();" | grep -oE '[0-9]+\.[0-9]+' | head -1)
+    local pg_config_dir="/etc/postgresql/$pg_version/main"
+
+    if [ -d "$pg_config_dir" ]; then
+        # Update pg_hba.conf for local connections
+        sed -i "s/#local   all             all                                     peer/local   all             all                                     md5/" "$pg_config_dir/pg_hba.conf" 2>/dev/null || true
+        sed -i "s/local   all             all                                     peer/local   all             all                                     md5/" "$pg_config_dir/pg_hba.conf" 2>/dev/null || true
+
+        # Restart PostgreSQL
+        systemctl restart postgresql
+    fi
 
     print_progress 3 4 "Running database migrations..."
     cd "$MARZBAN_DIR"
 
-    # Set DATABASE_URL for trust authentication during setup
-    DATABASE_URL="postgresql://marzban@localhost/enhanced_marzban"
+    # Create .env file temporarily for database setup
+    cat > .env.temp << EOF
+SQLALCHEMY_DATABASE_URL=postgresql://marzban:$DATABASE_PASSWORD@localhost/enhanced_marzban
+EOF
 
     # Run database migrations
     python3 -c "
 import os
-os.environ['SQLALCHEMY_DATABASE_URL'] = '$DATABASE_URL'
-from app.db import engine, GetDB
+os.environ['SQLALCHEMY_DATABASE_URL'] = 'postgresql://marzban:$DATABASE_PASSWORD@localhost/enhanced_marzban'
+from app.db import engine
 from app.db.models_enhanced import Base
-from app.db.models import Base as OriginalBase, JWT
+from app.db.models import Base as OriginalBase
 try:
     OriginalBase.metadata.create_all(bind=engine)
     Base.metadata.create_all(bind=engine)
     print('✓ Database tables created successfully')
-
-    # Ensure JWT secret key exists
-    with GetDB() as db:
-        jwt_record = db.query(JWT).first()
-        if not jwt_record:
-            jwt_record = JWT(secret_key=os.urandom(32).hex())
-            db.add(jwt_record)
-            db.commit()
-            print('✓ JWT secret key initialized')
-        else:
-            print('✓ JWT secret key already exists')
-
 except Exception as e:
     print(f'Database setup error: {e}')
     exit(1)
 "
 
-    print_progress 4 4 "Restoring secure PostgreSQL configuration..."
+    rm -f .env.temp
 
-    # Restore secure configuration with password authentication
-    if [ -f "$pg_hba_conf.original" ]; then
-        # Restore original configuration
-        cp "$pg_hba_conf.original" "$pg_hba_conf"
-
-        # Update for password authentication
-        sed -i 's/local   all             all                                     peer/local   all             all                                     md5/g' "$pg_hba_conf"
-        sed -i 's/local   all             postgres                                peer/local   all             postgres                                md5/g' "$pg_hba_conf"
-
-        # Restart PostgreSQL with secure configuration
-        systemctl restart postgresql
-        sleep 2
-
-        # Update DATABASE_URL for production use
-        DATABASE_URL="postgresql://marzban:$DATABASE_PASSWORD@localhost/enhanced_marzban"
-
-        print_status "Restored secure PostgreSQL authentication"
-    fi
-
+    print_progress 4 4 "Database setup completed"
     print_success "PostgreSQL database configured successfully"
     log_action "Database setup completed"
 }
 
 create_configuration() {
-    print_step 10 16 "Creating Enhanced Marzban configuration"
+    print_step 9 14 "Creating Enhanced Marzban configuration"
 
     cd "$MARZBAN_DIR"
-
-    # Use the DATABASE_URL that was configured during database setup
-    if [ -z "$DATABASE_URL" ]; then
-        DATABASE_URL="postgresql://marzban:$DATABASE_PASSWORD@localhost/enhanced_marzban"
-    fi
 
     # Create .env configuration file
     cat > .env << EOF
@@ -644,7 +520,7 @@ create_configuration() {
 # Generated on $(date)
 
 # Database Configuration
-SQLALCHEMY_DATABASE_URL=$DATABASE_URL
+SQLALCHEMY_DATABASE_URL=postgresql://marzban:$DATABASE_PASSWORD@localhost/enhanced_marzban
 
 # Application Configuration
 UVICORN_HOST=0.0.0.0
@@ -706,14 +582,9 @@ EOF
 }
 
 create_admin_user() {
-    print_step 11 16 "Creating admin user"
+    print_step 10 14 "Creating admin user"
 
     cd "$MARZBAN_DIR"
-
-    # Use the same DATABASE_URL that was configured
-    if [ -z "$DATABASE_URL" ]; then
-        DATABASE_URL="postgresql://marzban:$DATABASE_PASSWORD@localhost/enhanced_marzban"
-    fi
 
     # Create admin user
     python3 -c "
@@ -722,14 +593,11 @@ import sys
 sys.path.append('.')
 
 # Set environment variables
-os.environ['SQLALCHEMY_DATABASE_URL'] = '$DATABASE_URL'
+os.environ['SQLALCHEMY_DATABASE_URL'] = 'postgresql://marzban:$DATABASE_PASSWORD@localhost/enhanced_marzban'
 
 from app.db import get_db
-from app.db.models import Admin
-from passlib.context import CryptContext
-
-# Initialize password context
-pwd_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
+from app.models.admin import Admin
+from app.utils.system import hash_password
 
 try:
     db = next(get_db())
@@ -738,14 +606,14 @@ try:
     existing_admin = db.query(Admin).filter(Admin.username == '$ADMIN_USERNAME').first()
     if existing_admin:
         # Update existing admin
-        existing_admin.hashed_password = pwd_context.hash('$ADMIN_PASSWORD')
+        existing_admin.hashed_password = hash_password('$ADMIN_PASSWORD')
         existing_admin.is_sudo = True
         print('✓ Admin user updated')
     else:
         # Create new admin
         admin = Admin(
             username='$ADMIN_USERNAME',
-            hashed_password=pwd_context.hash('$ADMIN_PASSWORD'),
+            hashed_password=hash_password('$ADMIN_PASSWORD'),
             is_sudo=True
         )
         db.add(admin)
@@ -764,7 +632,7 @@ except Exception as e:
 }
 
 setup_fail2ban() {
-    print_step 12 16 "Setting up Fail2ban integration"
+    print_step 11 14 "Setting up Fail2ban integration"
 
     cd "$MARZBAN_DIR"
 
@@ -817,7 +685,7 @@ setup_fail2ban() {
 }
 
 setup_systemd_service() {
-    print_step 13 16 "Setting up systemd service"
+    print_step 12 14 "Setting up systemd service"
 
     # Create systemd service file
     cat > /etc/systemd/system/enhanced-marzban.service << EOF
@@ -863,10 +731,7 @@ EOF
 }
 
 setup_nginx() {
-    print_step 14 16 "Setting up Nginx configuration"
-
-    # Create necessary Nginx directories
-    mkdir -p "$NGINX_DIR/sites-available" "$NGINX_DIR/sites-enabled"
+    print_step 13 14 "Setting up Nginx configuration"
 
     # Determine server name
     local server_name="_"
@@ -890,7 +755,7 @@ upstream enhanced_marzban {
     keepalive 32;
 }
 
-# HTTP server
+# HTTP server - redirect to HTTPS
 server {
     listen 80;
     listen [::]:80;
@@ -900,6 +765,42 @@ server {
     add_header X-Frame-Options DENY always;
     add_header X-Content-Type-Options nosniff always;
     add_header X-XSS-Protection "1; mode=block" always;
+
+    # Redirect all HTTP traffic to HTTPS
+    return 301 https://\$server_name\$request_uri;
+}
+
+# HTTPS server
+server {
+    listen 443 ssl http2;
+    listen [::]:443 ssl http2;
+    server_name $server_name;
+
+    # SSL configuration
+    ssl_certificate $SSL_DIR/marzban.crt;
+    ssl_certificate_key $SSL_DIR/marzban.key;
+    ssl_session_timeout 1d;
+    ssl_session_cache shared:SSL:50m;
+    ssl_session_tickets off;
+
+    # Modern SSL configuration
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_ciphers ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384;
+    ssl_prefer_server_ciphers off;
+
+    # Security headers
+    add_header Strict-Transport-Security "max-age=63072000; includeSubDomains; preload" always;
+    add_header X-Frame-Options DENY always;
+    add_header X-Content-Type-Options nosniff always;
+    add_header X-XSS-Protection "1; mode=block" always;
+    add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+    add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self'; frame-ancestors 'none';" always;
+
+    # Gzip compression
+    gzip on;
+    gzip_vary on;
+    gzip_min_length 1024;
+    gzip_types text/plain text/css text/xml text/javascript application/javascript application/xml+rss application/json;
 
     # Dashboard with rate limiting
     location /dashboard {
@@ -980,6 +881,13 @@ server {
         deny all;
         return 404;
     }
+
+    # Custom error pages
+    error_page 502 503 504 /50x.html;
+    location = /50x.html {
+        root /var/www/html;
+        internal;
+    }
 }
 EOF
 
@@ -1004,7 +912,7 @@ EOF
 }
 
 setup_ssl_certificates() {
-    print_step 15 16 "Setting up SSL certificates"
+    print_step 14 14 "Setting up SSL certificates"
 
     # Create SSL directory
     mkdir -p "$SSL_DIR"
@@ -1056,7 +964,7 @@ create_self_signed_certificate() {
 }
 
 configure_firewall() {
-    print_step 16 16 "Configuring firewall"
+    print_step 15 14 "Configuring firewall"
 
     case "$DETECTED_OS" in
         ubuntu|debian)
@@ -1332,8 +1240,7 @@ show_completion_message() {
     echo
 
     # Determine access URL
-    local server_ip=$(hostname -I | awk '{print $1}')
-    local access_url="http://$server_ip"
+    local access_url="https://$(hostname -I | awk '{print $1}'):8000"
     if [ -n "$DOMAIN" ]; then
         access_url="https://$DOMAIN"
     fi
@@ -1342,7 +1249,6 @@ show_completion_message() {
     echo -e "${WHITE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
     echo -e "📱 Web Panel:      ${GREEN}$access_url/dashboard/${NC}"
     echo -e "🔧 API Docs:       ${GREEN}$access_url/docs${NC}"
-    echo -e "🌐 Server IP:      ${BLUE}$server_ip${NC}"
     echo -e "👤 Admin Username: ${YELLOW}$ADMIN_USERNAME${NC}"
     echo -e "🔑 Admin Password: ${YELLOW}$ADMIN_PASSWORD${NC}"
     echo -e "🔐 API Token:      ${YELLOW}$API_TOKEN${NC}"
@@ -1412,7 +1318,6 @@ Generated on: $(date)
 Access Information:
 - Web Panel: $access_url/dashboard/
 - API Documentation: $access_url/docs
-- Server IP: $server_ip
 - Admin Username: $ADMIN_USERNAME
 - Admin Password: $ADMIN_PASSWORD
 - API Token: $API_TOKEN
@@ -1560,9 +1465,6 @@ main() {
 
     # Install Python dependencies
     install_python_dependencies
-
-    # Build Enhanced frontend dashboard
-    build_frontend
 
     # Generate secure credentials
     generate_secrets
