@@ -443,8 +443,12 @@ build_frontend() {
     # Install Node.js and npm if not present
     print_progress 1 5 "Installing Node.js and npm..."
     if ! command -v node >/dev/null 2>&1; then
-        wget -qO- https://deb.nodesource.com/setup_20.x | bash -
-        apt-get install -y nodejs
+        if wget -qO- https://deb.nodesource.com/setup_20.x | bash - && apt-get install -y nodejs; then
+            print_status "Node.js 20 installed successfully"
+        else
+            print_warning "Failed to install Node.js 20, trying fallback with apt"
+            apt-get install -y nodejs npm
+        fi
     fi
 
     # Verify Node.js installation
