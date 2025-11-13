@@ -51,33 +51,13 @@ sudo bash -c "$(curl -sL https://github.com/Kavis1/enhanced-marzban/raw/main/ins
 - **File permissions** set correctly for security
 - **Log rotation** to prevent disk space issues
 
-## 🔧 Installation Process
-
-The installation script performs these steps automatically:
-
-1. **System Check** - Verify OS compatibility and requirements
-2. **Backup Creation** - Backup existing configurations
-3. **Dependencies** - Install all required system packages
-4. **Repository** - Clone Enhanced Marzban from GitHub
-5. **Python Setup** - Install all Python dependencies
-6. **Credentials** - Generate secure passwords and tokens
-7. **Database** - Setup PostgreSQL with enhanced tables
-8. **Configuration** - Create .env file with all settings
-9. **Admin User** - Create initial admin account
-10. **Fail2ban** - Configure traffic monitoring
-11. **Systemd** - Setup service for auto-startup
-12. **Nginx** - Configure web server with SSL
-13. **SSL Certificates** - Setup Let's Encrypt or self-signed
-14. **Firewall** - Configure security rules
-15. **Services** - Start and verify all components
-
 ## 📊 Post-Installation
 
 After successful installation, you'll see:
 
 ### Access Information
-- **Web Panel URL**: https://your-domain-or-ip:8000/dashboard/
-- **API Documentation**: https://your-domain-or-ip:8000/docs
+- **Web Panel URL**: https://your-domain-or-ip/dashboard/
+- **API Documentation**: https://your-domain-or-ip/docs
 - **Admin Username**: admin
 - **Admin Password**: [randomly generated 16-character password]
 - **API Token**: [randomly generated 32-character token]
@@ -87,7 +67,7 @@ After successful installation, you'll see:
 - **Nginx Config**: `/etc/nginx/sites-available/enhanced-marzban`
 - **Fail2ban Config**: `/etc/fail2ban/jail.local`
 - **Action Script**: `/usr/local/bin/marzban-fail2ban-action.sh`
-- **Log Files**: `/var/log/marzban/`
+-_Log Files_*: `/var/log/marzban/`
 - **Backups**: `/var/backups/marzban/`
 
 ### Service Management
@@ -99,30 +79,20 @@ systemctl restart enhanced-marzban
 systemctl status enhanced-marzban
 
 # Using management script
-enhanced-marzban start
-enhanced-marzban stop
-enhanced-marzban restart
-enhanced-marzban status
-enhanced-marzban logs
-enhanced-marzban update
-enhanced-marzban backup
-enhanced-marzban health
+/usr/local/bin/marzban-management start
+/usr/local/bin/marzban-management stop
+/usr/local/bin/marzban-management restart
+/usr/local/bin/marzban-management status
+/usr/local/bin/marzban-management logs
+/usr/local/bin/marzban-management update
+/usr/local/bin/marzban-management backup
+/usr/local/bin/marzban-management health
 ```
-
-## 🔒 Enhanced Features Enabled
-
-- ✅ **Two-Factor Authentication (2FA)** - Google Authenticator compatible
-- ✅ **Fail2ban Integration** - Traffic monitoring and automatic blocking
-- ✅ **Connection Limiting** - Maximum 5 connections per user
-- ✅ **DNS Override** - Custom DNS rules and redirection
-- ✅ **Ad-blocking** - Integrated ad-block lists and filtering
-- ✅ **Performance Monitoring** - Real-time system metrics
-- ✅ **Security Features** - Enhanced authentication and logging
 
 ## 🛠️ System Requirements
 
 ### Minimum Requirements
-- **OS**: Ubuntu 20.04+, Debian 11+, or CentOS 8+
+- **OS**: Any Linux distribution
 - **RAM**: 2GB (4GB recommended)
 - **Disk**: 10GB free space
 - **Network**: Internet connection for package downloads
@@ -153,7 +123,7 @@ systemctl status enhanced-marzban
 journalctl -u enhanced-marzban -f
 
 # Check application health
-enhanced-marzban health
+/usr/local/bin/marzban-management health
 ```
 
 ### Network Issues
@@ -177,7 +147,7 @@ curl -k https://localhost:8000/api/enhanced/health
 To update Enhanced Marzban to the latest version:
 
 ```bash
-enhanced-marzban update
+/usr/local/bin/marzban-management update
 ```
 
 Or manually:
