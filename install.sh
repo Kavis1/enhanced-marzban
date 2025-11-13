@@ -1386,7 +1386,7 @@ show_completion_message() {
     echo -e "🔄 Restart:        ${YELLOW}systemctl restart enhanced-marzban${NC}"
     echo -e "📊 Status:         ${BLUE}systemctl status enhanced-marzban${NC}"
     echo -e "📋 Logs:           ${BLUE}journalctl -u enhanced-marzban -f${NC}"
-    echo -e "🛠️  Management:     ${PURPLE}enhanced-marzban {start|stop|restart|status|logs|update|backup|health}${NC}"
+    echo -e "🛠️  Management:     ${PURPLE}enhanced-marzban {start|stop|restart|status|logs|update|backup|health|version|check-update}${NC}"
     echo
 
     echo -e "${CYAN}🔒 ENHANCED FEATURES ENABLED${NC}"
