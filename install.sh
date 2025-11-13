@@ -461,14 +461,14 @@ build_frontend() {
     cd app/dashboard
 
     # Install dependencies
-    npm install --silent --no-progress 2>/dev/null || {
-        print_warning "npm install failed, trying with --legacy-peer-deps"
-        npm install --legacy-peer-deps --silent --no-progress 2>/dev/null
+    npm install --legacy-peer-deps --silent --no-progress 2>/dev/null || {
+        print_warning "npm install failed, trying without silent flags"
+        npm install --legacy-peer-deps
     }
 
     print_progress 3 5 "Building Enhanced dashboard..."
     # Build the dashboard with correct output directory
-    VITE_BASE_API=/api/ npm run build -- --outDir build --assetsDir statics 2>/dev/null || {
+    VITE_BASE_API=/api/ npm run build || {
         print_error "Failed to build dashboard"
         return 1
     }

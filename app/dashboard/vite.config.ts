@@ -15,4 +15,8 @@ export default defineConfig({
     visualizer(),
     splitVendorChunkPlugin(),
   ],
+  build: {
+    outDir: 'build',
+    assetsDir: 'statics',
+  },
 });
