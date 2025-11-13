@@ -418,7 +418,7 @@ install_python_dependencies() {
 
     # Install requirements
     print_progress 3 5 "Installing Enhanced Marzban dependencies..."
-    python3 -m pip install -r requirements.txt
+    python3 -m pip install -r requirements.txt --ignore-installed
 
     # Install additional security and database packages
     print_progress 4 5 "Installing security and database packages..."
