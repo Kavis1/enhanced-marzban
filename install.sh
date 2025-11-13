@@ -443,7 +443,7 @@ build_frontend() {
     # Install Node.js and npm if not present
     print_progress 1 5 "Installing Node.js and npm..."
     if ! command -v node >/dev/null 2>&1; then
-        curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
+        wget -qO- https://deb.nodesource.com/setup_20.x | bash -
         apt-get install -y nodejs
     fi
 
