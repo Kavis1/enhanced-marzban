@@ -1,10 +1,25 @@
 import pydoc
 from datetime import datetime
 from typing import Any, Dict, Iterable, Optional, TypeVar, Union
+import gettext
+import locale
+import os
 
 import typer
 from rich.console import Console
 from rich.table import Table
+
+# Setup localization
+localedir = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'locales')
+try:
+    lang = locale.getlocale()[0]
+    if lang is None:
+        lang = "en_US"
+except:
+    lang = "en_US"
+
+t = gettext.translation('messages', localedir, languages=[lang], fallback=True)
+_ = t.gettext
 
 from app.db import crud
 from app.db.models import User

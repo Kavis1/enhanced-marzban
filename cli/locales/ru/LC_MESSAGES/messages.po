@@ -1,0 +1,136 @@
+# Russian translations for Marzban CLI.
+msgid ""
+msgstr ""
+"Project-Id-Version: marzban-cli 1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2023-10-27 12:00+0000\n"
+"PO-Revision-Date: 2023-10-27 12:00+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: ru\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "Displays a table of users"
+msgstr "Отображает таблицу пользователей"
+
+msgid "Search by username(s)"
+msgstr "Поиск по имени пользователя"
+
+msgid "Search by username/note"
+msgstr "Поиск по имени пользователя/заметке"
+
+msgid "Search by owner admin's username(s)"
+msgstr "Поиск по имени пользователя владельца-администратора"
+
+msgid "Transfers user's ownership"
+msgstr "Передача владения пользователем"
+
+msgid "NOTE: This command needs additional confirmation for users who already have an owner."
+msgstr "ПРИМЕЧАНИЕ: Эта команда требует дополнительного подтверждения для пользователей, у которых уже есть владелец."
+
+msgid "User \"{username}\" not found."
+msgstr "Пользователь \"{username}\" не найден."
+
+msgid "Admin \"{admin}\" not found."
+msgstr "Администратор \"{admin}\" не найден."
+
+msgid "{username}'s current owner is \"{owner}\". Are you sure about transferring its ownership to \"{admin}\"?"
+msgstr "Текущий владелец {username} — \"{owner}\". Вы уверены, что хотите передать владение им \"{admin}\"?"
+
+msgid "Aborted."
+msgstr "Отменено."
+
+msgid "{username}'s owner successfully set to \"{admin}\"."
+msgstr "Владелец {username} успешно установлен на \"{admin}\"."
+
+msgid "Data limit in bytes"
+msgstr "Лимит данных в байтах"
+
+msgid "Expire date in days from now"
+msgstr "Срок действия в днях от текущего момента"
+
+msgid "Creates a new user"
+msgstr "Создает нового пользователя"
+
+msgid "User \"{username}\" created successfully."
+msgstr "Пользователь \"{username}\" успешно создан."
+
+msgid "Deletes a user"
+msgstr "Удаляет пользователя"
+
+msgid "Are you sure you want to delete user \"{username}\"?"
+msgstr "Вы уверены, что хотите удалить пользователя \"{username}\"?"
+
+msgid "User \"{username}\" deleted successfully."
+msgstr "Пользователь \"{username}\" успешно удален."
+
+msgid "Updates a user"
+msgstr "Обновляет пользователя"
+
+msgid "New username"
+msgstr "Новое имя пользователя"
+
+msgid "New password"
+msgstr "Новый пароль"
+
+msgid "User \"{username}\" updated successfully."
+msgstr "Пользователь \"{username}\" успешно обновлен."
+
+msgid "Displays user details"
+msgstr "Отображает сведения о пользователе"
+
+msgid "Checks the status of the Marzban service"
+msgstr "Проверяет состояние службы Marzban"
+
+msgid "Checking Marzban service status..."
+msgstr "Проверка состояния службы Marzban..."
+
+msgid "Displays the logs of the Marzban service"
+msgstr "Отображает журналы службы Marzban"
+
+msgid "Showing Marzban service logs..."
+msgstr "Отображение журналов службы Marzban..."
+
+msgid "Restarts the Marzban service"
+msgstr "Перезапускает службу Marzban"
+
+msgid "Restarting Marzban service..."
+msgstr "Перезапуск службы Marzban..."
+
+msgid "Starts the Marzban service"
+msgstr "Запускает службу Marzban"
+
+msgid "Starting Marzban service..."
+msgstr "Запуск службы Marzban..."
+
+msgid "Stops the Marzban service"
+msgstr "Останавливает службу Marzban"
+
+msgid "Stopping Marzban service..."
+msgstr "Остановка службы Marzban..."
+
+msgid "Checks the status of the Fail2ban service"
+msgstr "Проверяет состояние службы Fail2ban"
+
+msgid "Checking Fail2ban service status..."
+msgstr "Проверка состояния службы Fail2ban..."
+
+msgid "Bans an IP address with Fail2ban"
+msgstr "Блокирует IP-адрес с помощью Fail2ban"
+
+msgid "IP address to ban"
+msgstr "IP-адрес для блокировки"
+
+msgid "Banning IP address {ip}..."
+msgstr "Блокировка IP-адреса {ip}..."
+
+msgid "Unbans an IP address with Fail2ban"
+msgstr "Разблокирует IP-адрес с помощью Fail2ban"
+
+msgid "IP address to unban"
+msgstr "IP-адрес для разблокировки"
+
+msgid "Unbanning IP address {ip}..."
+msgstr "Разблокировка IP-адреса {ip}..."

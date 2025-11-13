@@ -25,19 +25,33 @@ call_marzban_api() {
     local ip="$2"
     local username="$3"
     local reason="$4"
+    local duration="$5"
     
     local api_endpoint="$MARZBAN_API_URL/fail2ban/action"
     
-    local json_data=$(cat <<EOF
+    local json_data
+    if [ -n "$username" ]; then
+        json_data=$(cat <<EOF
 {
     "action": "$action",
     "ip_address": "$ip",
     "username": "$username",
     "reason": "$reason",
-    "duration": 3600
+    "duration": $duration
 }
 EOF
 )
+    else
+        json_data=$(cat <<EOF
+{
+    "action": "$action",
+    "ip_address": "$ip",
+    "reason": "$reason",
+    "duration": $duration
+}
+EOF
+)
+    fi
     
     local response=$(curl -s -X POST "$api_endpoint" \
         -H "Content-Type: application/json" \
@@ -57,10 +71,11 @@ EOF
 ACTION="$1"
 IP="$2"
 LOG_MATCHES="$3"
+BAN_TIME="$4"
 
 if [ -z "$ACTION" ] || [ -z "$IP" ] || [ -z "$LOG_MATCHES" ]; then
     log_message "Error: Missing required parameters"
-    echo "Usage: $0 <ban|unban> <ip> <log_matches>"
+    echo "Usage: $0 <ban|unban> <ip> <log_matches> [ban_time]"
     exit 1
 fi
 
@@ -68,8 +83,7 @@ fi
 USERNAME=$(extract_username "$LOG_MATCHES")
 
 if [ -z "$USERNAME" ]; then
-    log_message "Error: Could not extract username from log matches: $LOG_MATCHES"
-    exit 1
+    log_message "Warning: Could not extract username from log matches: $LOG_MATCHES. Banning IP address only."
 fi
 
 # Determine reason based on action
@@ -90,7 +104,7 @@ fi
 
 # Call Marzban API
 log_message "Processing $ACTION for user $USERNAME from IP $IP"
-call_marzban_api "$ACTION" "$IP" "$USERNAME" "$REASON"
+call_marzban_api "$ACTION" "$IP" "$USERNAME" "$REASON" "${BAN_TIME:-3600}"
 
 if [ $? -eq 0 ]; then
     log_message "Successfully processed $ACTION for user $USERNAME from IP $IP"
