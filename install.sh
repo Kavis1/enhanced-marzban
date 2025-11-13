@@ -461,6 +461,8 @@ build_frontend() {
     cd app/dashboard
 
     # Install dependencies
+    # Clean install to prevent corruption
+    rm -rf node_modules package-lock.json
     npm install --legacy-peer-deps --silent --no-progress 2>/dev/null || {
         print_warning "npm install failed, trying without silent flags"
         npm install --legacy-peer-deps
@@ -468,7 +470,7 @@ build_frontend() {
 
     print_progress 3 5 "Building Enhanced dashboard..."
     # Build the dashboard with correct output directory
-    NODE_OPTIONS="--max-old-space-size=4096" VITE_BASE_API=/api/ npm run build || {
+    NODE_OPTIONS="--max-old-space-size=8192 --max-new-space-size=4096" VITE_BASE_API=/api/ npm run build || {
         print_error "Failed to build dashboard"
         return 1
     }

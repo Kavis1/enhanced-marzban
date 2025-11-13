@@ -18,5 +18,14 @@ export default defineConfig({
   build: {
     outDir: 'build',
     assetsDir: 'statics',
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom'],
+          ui: ['@chakra-ui/react'],
+        },
+      },
+    },
+    chunkSizeWarningLimit: 1000,
   },
 });
