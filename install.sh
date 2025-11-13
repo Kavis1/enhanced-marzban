@@ -468,7 +468,7 @@ build_frontend() {
 
     print_progress 3 5 "Building Enhanced dashboard..."
     # Build the dashboard with correct output directory
-    VITE_BASE_API=/api/ npm run build || {
+    NODE_OPTIONS="--max-old-space-size=4096" VITE_BASE_API=/api/ npm run build || {
         print_error "Failed to build dashboard"
         return 1
     }
