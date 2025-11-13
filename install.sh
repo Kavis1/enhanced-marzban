@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Enhanced Marzban Complete Automated Installation Script
-# Version: 2.0
+# Version: 2.1
 # Repository: https://github.com/Kavis1/enhanced-marzban
 #
 # This script provides a complete, automated deployment solution for Enhanced Marzban
@@ -52,7 +52,7 @@ print_banner() {
     clear
     echo -e "${PURPLE}"
     echo "╔══════════════════════════════════════════════════════════════════════════════╗"
-    echo "║                        Enhanced Marzban Installer v2.0                      ║"
+    echo "║                        Enhanced Marzban Installer v2.1                      ║"
     echo "║                                                                              ║"
     echo "║  🚀 Complete Automated Deployment Solution                                  ║"
     echo "║  🔐 Advanced Security Features                                              ║"
@@ -197,7 +197,7 @@ parse_arguments() {
 }
 
 show_help() {
-    echo "Enhanced Marzban Installation Script v2.0"
+    echo "Enhanced Marzban Installation Script v2.1"
     echo
     echo "Usage: $0 [OPTIONS] COMMAND"
     echo
@@ -1302,19 +1302,36 @@ case "$1" in
         curl -s http://localhost:8000/api/enhanced/health | jq . 2>/dev/null || \
         curl -s http://localhost:8000/api/enhanced/health
         ;;
+    version)
+        echo "Enhanced Marzban v2.1"
+        ;;
+    check-update)
+        echo "Checking for updates..."
+        cd "$MARZBAN_DIR"
+        git fetch origin
+        LOCAL=$(git rev-parse HEAD)
+        REMOTE=$(git rev-parse origin/main)
+        if [ "$LOCAL" != "$REMOTE" ]; then
+            echo "Update available. Run 'enhanced-marzban update' to update."
+        else
+            echo "You are up to date."
+        fi
+        ;;
     *)
-        echo "Enhanced Marzban Management Script"
-        echo "Usage: $0 {start|stop|restart|status|logs|update|backup|health}"
+        echo "Enhanced Marzban Management Script v2.1"
+        echo "Usage: $0 {start|stop|restart|status|logs|update|backup|health|version|check-update}"
         echo
         echo "Commands:"
-        echo "  start   - Start Enhanced Marzban service"
-        echo "  stop    - Stop Enhanced Marzban service"
-        echo "  restart - Restart Enhanced Marzban service"
-        echo "  status  - Show service status"
-        echo "  logs    - Show live logs"
-        echo "  update  - Update to latest version"
-        echo "  backup  - Create backup"
-        echo "  health  - Check application health"
+        echo "  start       - Start Enhanced Marzban service"
+        echo "  stop        - Stop Enhanced Marzban service"
+        echo "  restart     - Restart Enhanced Marzban service"
+        echo "  status      - Show service status"
+        echo "  logs        - Show live logs"
+        echo "  update      - Update to latest version"
+        echo "  backup      - Create backup"
+        echo "  health      - Check application health"
+        echo "  version     - Show version information"
+        echo "  check-update- Check for available updates"
         exit 1
         ;;
 esac
